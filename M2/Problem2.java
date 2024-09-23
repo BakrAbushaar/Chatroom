@@ -26,12 +26,14 @@ public class Problem2 {
         // Goal 1: Sum all the values inside the passed in array
         // Goal 2: Ensure the resulting total is represented in currency format (without the $) (i.e., two decimal places always present)
         //TODO add/edit code here
-       for (int i = 0; i < arr.length; i++){
+     
+     
+     // 9/23/2024
+     // UCID: bna24
+        for (int i = 0; i < arr.length; i++){
         total += arr[i];
        }
-
-
-      
+       
        // multiply by 100 to move decimal points so that math.round can work
        // Then divide to move the decimal back
        total = Math.round(total * 100.0) / 100.0;
