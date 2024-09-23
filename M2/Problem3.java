@@ -29,8 +29,8 @@ public class Problem3 {
         //hint: don't forget to handle the data types properly, the result datatype should be the same as the original datatype
         
 
-        //Bakr Abushaar
-        //UCID: bna24 
+        // 9/23/2024
+        // UCID: bna24 
         for (int i = 0; i < arr.length; i++) {
           if (arr[i] instanceof Integer) {
                 output[i] = Math.abs((Integer) arr[i]);

@@ -24,6 +24,9 @@ public class Problem1 {
         System.out.println("Odds output:");
         //hint: use the arr variable; don't diretly use the a1-a4 variables
         // Goal: output only add *values* of each passed array
+       
+       // 9/23/2024
+       //UCID: bna24
         for (int i = 0; i < arr.length; i++) {
             if (arr[i] % 2 == 1) {
                 System.out.print(arr[i] + " ");
