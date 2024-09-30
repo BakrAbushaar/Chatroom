@@ -130,6 +130,13 @@ public class NumberGuesser4 {
             pickNewRandom = true;
         } else {
             System.out.println("That's wrong");
+            // bna24
+            // 9/29/2024
+            if (guess < number){
+                System.out.println("hint: answer is higher");
+            } else if (guess > number){
+                System.out.println("hint: answer is lower");
+            }
             strikes++;
             if (strikes >= maxStrikes) {
                 lose();
@@ -150,6 +157,25 @@ public class NumberGuesser4 {
         }
         return guess;
     }
+
+
+    public void selectDifficulty(){
+        Scanner input = new Scanner(System.in);
+        System.out.println("select difficulty: easy, medium, hard");
+        String difficulty = input.nextLine().toLowerCase(); //makes the input of user to lowercase
+        
+        if (difficulty.equals("easy")) {  //used .equals instead of == because its a String
+            maxStrikes = 10;
+        }
+    }
+
+
+
+
+
+
+
+
 
     public void start() {
         try (Scanner input = new Scanner(System.in);) {
