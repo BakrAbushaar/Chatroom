@@ -17,6 +17,13 @@ public class NumberGuesser4 {
     private String fileName = "ng4.txt";
     private String[] fileHeaders = { "Level", "Strikes", "Number", "MaxLevel" };// used for demo readability
 
+
+   
+
+
+
+
+
     private void saveState() {
         String[] data = { level + "", strikes + "", number + "", maxLevel + "" };
         String output = String.join(",", data);
@@ -158,6 +165,8 @@ public class NumberGuesser4 {
         return guess;
     }
 
+    //bna24
+    // 9/30/2024
 
     public void selectDifficulty(){
         Scanner input = new Scanner(System.in);
@@ -166,7 +175,15 @@ public class NumberGuesser4 {
         
         if (difficulty.equals("easy")) {  //used .equals instead of == because its a String
             maxStrikes = 10;
+        } else if (difficulty.equals("medium")) {
+            maxStrikes = 5;
+        } else if (difficulty.equals("hard")) {
+            maxStrikes = 3;
+        } else {
+            System.out.println("wrong selection, Default selection: medium");
+            maxStrikes = 5;
         }
+        System.out.println("you selected" + difficulty + " mode. you have " + maxStrikes + "strikes");
     }
 
 
@@ -178,6 +195,7 @@ public class NumberGuesser4 {
 
 
     public void start() {
+        selectDifficulty();
         try (Scanner input = new Scanner(System.in);) {
             System.out.println("Welcome to NumberGuesser4.0");
             System.out.println("To exit, type the word 'quit'.");
