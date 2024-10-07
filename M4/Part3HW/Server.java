@@ -148,9 +148,9 @@ public class Server {
     }
 
 
-        // bna24
-        // 10/7/2024
-        // Shuffle Message #2
+    // bna24
+    // 10/7/2024
+    // Shuffle Message #2
      private String shuffleMessage(String message) {
         char[] chars = message.toCharArray();
         StringBuilder shuffled = new StringBuilder();
