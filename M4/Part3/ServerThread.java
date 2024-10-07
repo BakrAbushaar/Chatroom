@@ -1,4 +1,4 @@
-package Part3;
+package M4.Part3;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -40,7 +40,7 @@ public class ServerThread extends Thread {
         // get communication channels to single client
         this.client = myClient;
         this.server = server;
-        this.clientId = this.nextThreadID();
+        this.clientId = this.threadId();
         this.onInitializationComplete = onInitializationComplete;
 
     }

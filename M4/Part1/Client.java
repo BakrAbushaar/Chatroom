@@ -1,4 +1,4 @@
-package Part1;
+package M4.Part1;
 
 import java.io.IOException;
 import java.io.PrintWriter;
