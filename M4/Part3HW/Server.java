@@ -1,4 +1,4 @@
-package M4.Part3;
+package M4.Part3HW;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -112,6 +112,29 @@ public class Server {
             return false;
         }
         System.out.println("Checking command: " + message);
+
+
+        // bna24
+        // 10/7/2024
+        // coin toss
+        if ("/toss".equalsIgnoreCase(message)){
+            String result = (Math.random() < 0.5) ? "heads" : "tails";
+             relay("User[" + sender.getClientId() + "] tossed  coin and got " + result, sender);
+            return true;
+        }
+
+        // bna24
+        // 10/7/2024
+        // Shuffle Method #1
+        if (message.startsWith("/shuffle ")) {
+            String toShuffle = message.substring(9);
+            String shuffled = shuffleMessage(toShuffle);
+            relay("User[" + sender.getClientId() + "]: " + shuffled, null);
+            return true;
+        }
+
+
+
         // disconnect
         if ("/disconnect".equalsIgnoreCase(message)) {
             ServerThread removedClient = connectedClients.get(sender.getClientId());
@@ -123,6 +146,35 @@ public class Server {
         // add more "else if" as needed
         return false;
     }
+
+
+        // bna24
+        // 10/7/2024
+        // Shuffle Message #2
+     private String shuffleMessage(String message) {
+        char[] chars = message.toCharArray();
+        StringBuilder shuffled = new StringBuilder();
+
+        while (chars.length > 0) {
+            int index = (int) (Math.random() * chars.length);
+            shuffled.append(chars[index]);
+            chars = removeAt(chars, index);
+        }
+        return shuffled.toString();
+    }
+
+    private char[] removeAt(char[] array, int index) {
+        char[] newArray = new char[array.length - 1];
+        for (int i = 0, j = 0; i < array.length; i++) {
+            if (i != index) {
+                newArray[j++] = array[i];
+            }
+        }
+        return newArray;
+    }
+
+
+
 
     public static void main(String[] args) {
         System.out.println("Server Starting");
