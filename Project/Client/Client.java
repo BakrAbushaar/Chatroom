@@ -16,6 +16,8 @@ import Project.Common.Payload;
 import Project.Common.PayloadType;
 import Project.Common.ConnectionPayload;
 import Project.Common.TextFX;
+import Project.Common.RollPayload;
+import Project.Common.FlipPayLoad;
 /**
  * Demoing bi-directional communication between client and server in a
  * multi-client scenario
@@ -41,6 +43,9 @@ public enum Client {
     private final String LOGOFF = "logoff";
     private final String LOGOUT = "logout";
     private final String SINGLE_SPACE = " ";
+    private final String ROLL = "roll";
+    private final String FLIP = "flip";
+
 
     // needs to be private now that the enum logic is handling this
     private Client() {
@@ -167,6 +172,17 @@ public enum Client {
                         sendDisconnect();
                         wasCommand = true;
                         break;
+                     //bna24
+                    //November 11, 2024
+                    case ROLL:
+                        sendRollCommand(commandValue);  
+                        wasCommand = true;
+                        break;
+                    case FLIP:
+                        sendFlipCommand();  
+                        wasCommand = true;
+                        break;
+                
                 }
                 return wasCommand;
             }
@@ -234,6 +250,24 @@ public enum Client {
         send(cp);
     }
 
+
+    /**
+     * bna24
+     * November 11, 2024
+    * Sends a roll request to the server
+    */
+    private void sendRollCommand(String commandValue) {
+        Payload p = new Payload();
+        p.setPayloadType(PayloadType.ROLL);
+        send(p);
+    }
+    
+    private void sendFlipCommand() {
+        Payload p = new Payload();
+        p.setPayloadType(PayloadType.FLIP);
+        send(p);
+    }
+    
     /**
      * Generic send that passes any Payload over the socket (to ServerThread)
      * 
@@ -395,6 +429,14 @@ public enum Client {
                 case PayloadType.MESSAGE: // displays a received message
                     processMessage(payload.getClientId(), payload.getMessage());
                     break;
+                case PayloadType.ROLL: // handle roll command
+                    RollPayload rollPayload = (RollPayload) payload;
+                    processRollCommand(rollPayload, knownClients.get(rollPayload.getClientId()));
+                    break;
+                case PayloadType.FLIP: //handle flip command
+                    FlipPayLoad flipPayload = (FlipPayLoad) payload;
+                    processFlip(flipPayload);
+                    break;
                 default:
                     break;
             }
@@ -462,4 +504,40 @@ public enum Client {
     }
     // end payload processors
 
+    private void processRollCommand(RollPayload rollPayload, ClientData clientData){
+        System.out.println("Processing Roll Command for client: " + clientData.getClientName());
+        StringBuilder result = new StringBuilder();
+        result.append(clientData.getClientName()).append(" rolled ");
+
+        //  2d6 format, dice & sides
+        if (rollPayload.getDiceCount() > 0 && rollPayload.getDiceSides() > 0){
+            result.append(rollPayload.getDiceCount()).append("d")
+            .append(rollPayload.getDiceSides());
+
+            int total = 0;
+            for (int i = 0; i < rollPayload.getDiceCount(); i++) {
+                int roll = (int)(Math.random() * rollPayload.getDiceSides()) + 1; //rolls dice
+                total += roll;
+                result.append(" ").append(roll); //appennds roll to result
+            }
+            result.append(" and got ").append(total); // total of tolls
+
+        } else {
+                // /roll  100 format
+            int roll = (int) (Math.random() * rollPayload.getDiceSides()) + 1;
+            result.append(rollPayload.getDiceSides()).append(" and got ").append(roll);
+        }
+
+        System.out.println(TextFX.colorize(result.toString(), Color.CYAN));
+
+            }
+
+
+private void processFlip(FlipPayLoad flipPayload) {
+    // Simulate a coin flip (50% chance for heads or tails)
+    String result = Math.random() < 0.5 ? "heads" : "tails";
+    // Print the result of the flip
+    System.out.println(String.format("%s flipped a coin and got %s", flipPayload.getMessage(), result));
+
+}
 }

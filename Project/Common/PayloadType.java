@@ -7,5 +7,13 @@ public enum PayloadType {
     DISCONNECT,  // distinct disconnect action
     ROOM_CREATE,
     ROOM_JOIN, // join/leave room based on boolean
+    
+
+    //bna24
+    // November 11, 2024
+    ROLL, // roll commands dor dice
+    FLIP, // flip for coin toss
+
+
     MESSAGE // sender and message
 }

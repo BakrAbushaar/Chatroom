@@ -2,6 +2,8 @@ package Project.Common;
 
 import java.io.Serializable;
 
+//bna24
+//November 6, 2024
 public class Payload implements Serializable {
     private PayloadType payloadType;
     private long clientId;
