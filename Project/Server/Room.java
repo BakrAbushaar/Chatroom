@@ -1,4 +1,4 @@
-package Project;
+package Project.Server;
 
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -206,6 +206,8 @@ public class Room implements AutoCloseable{
     // end send data to client(s)
 
     // receive data from ServerThread
+    //bna24
+    //10/20/2024
     protected void handleCreateRoom(ServerThread sender, String room) {
         if (Server.INSTANCE.createRoom(room)) {
             Server.INSTANCE.joinRoom(room, sender);
@@ -213,7 +215,9 @@ public class Room implements AutoCloseable{
             sender.sendMessage(String.format("Room %s already exists", room));
         }
     }
-
+    
+    //bna24
+    //10/20/2024
     protected void handleJoinRoom(ServerThread sender, String room) {
         if (!Server.INSTANCE.joinRoom(room, sender)) {
             sender.sendMessage(String.format("Room %s doesn't exist", room));

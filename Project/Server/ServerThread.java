@@ -1,8 +1,14 @@
-package Project;
+package Project.Server;
 
 import java.net.Socket;
 import java.util.Objects;
 import java.util.function.Consumer;
+
+import Project.Common.ConnectionPayload;
+import Project.Common.Payload;
+import Project.Common.PayloadType;
+import Project.Server.Server.BaseServerThread;
+import Project.Server.Server.Room;
 
 /**
  * A server-side representation of a single client.
@@ -83,6 +89,8 @@ public class ServerThread extends BaseServerThread {
     }
     // handle received message from the Client
     @Override
+    //bna24
+    //10/20/2024
     protected void processPayload(Payload payload) {
         try {
             switch (payload.getPayloadType()) {
