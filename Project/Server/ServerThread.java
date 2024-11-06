@@ -7,8 +7,7 @@ import java.util.function.Consumer;
 import Project.Common.ConnectionPayload;
 import Project.Common.Payload;
 import Project.Common.PayloadType;
-import Project.Server.Server.BaseServerThread;
-import Project.Server.Server.Room;
+
 
 /**
  * A server-side representation of a single client.
