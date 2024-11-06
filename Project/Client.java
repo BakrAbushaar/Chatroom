@@ -276,6 +276,8 @@ public enum Client {
 
     /**
      * Listens for messages from the server
+     * bna24
+     * 10/21/2024
      */
     private void listenToServer() {
         try {
@@ -442,6 +444,8 @@ public enum Client {
         }
     }
 
+    //bna24
+    //10/21/2024
     private void processMessage(long clientId, String message) {
         String name = knownClients.containsKey(clientId) ? knownClients.get(clientId).getClientName() : "Room";
         System.out.println(TextFX.colorize(String.format("%s: %s", name, message), Color.BLUE));
