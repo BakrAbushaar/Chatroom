@@ -12,7 +12,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import Project.Common.TextFX.Color;
-
+import Project.Common.Payload;
+import Project.Common.PayloadType;
+import Project.Common.ConnectionPayload;
+import Project.Common.TextFX;
 /**
  * Demoing bi-directional communication between client and server in a
  * multi-client scenario
@@ -62,8 +65,6 @@ public enum Client {
      * @param address
      * @param port
      * @return true if connection was successful
-     * bna24
-     * 10/19/2024
      */
     private boolean connect(String address, int port) {
         try {
@@ -113,8 +114,6 @@ public enum Client {
      * 
      * @param text
      * @return true if the text was a command or triggered a command
-     * bna24
-     * 10/20/2024
      */
     private boolean processClientCommand(String text) {
         if (isConnection(text)) {
@@ -152,8 +151,6 @@ public enum Client {
                                                                      // aren't split
                 final String command = commandParts[0];
                 final String commandValue = commandParts.length >= 2 ? commandParts[1] : "";
-                //bna24
-                //10/20/2024
                 switch (command) {
                     case CREATE_ROOM:
                         sendCreateRoom(commandValue);
@@ -183,8 +180,6 @@ public enum Client {
      * Sends the room name we intend to create
      * 
      * @param room
-     * bna24
-     * 10/20/2024
      */
     private void sendCreateRoom(String room) {
         Payload p = new Payload();
@@ -197,8 +192,6 @@ public enum Client {
      * Sends the room name we intend to join
      * 
      * @param room
-     * bna24
-     * 10/20/2024
      */
     private void sendJoinRoom(String room) {
         Payload p = new Payload();
@@ -209,8 +202,6 @@ public enum Client {
 
     /**
      * Tells the server-side we want to disconnect
-     * bna24
-     * 10/20/2024
      */
     private void sendDisconnect() {
         Payload p = new Payload();
@@ -222,8 +213,6 @@ public enum Client {
      * Sends desired message over the socket
      * 
      * @param message
-     * bna24
-     * 10/20/2024
      */
     private void sendMessage(String message) {
         Payload p = new Payload();
@@ -261,9 +250,6 @@ public enum Client {
     }
     // end send methods
 
-
-     // bna24
-     // 10/19/2024
     public void start() throws IOException {
         System.out.println("Client starting");
 
@@ -276,8 +262,6 @@ public enum Client {
 
     /**
      * Listens for messages from the server
-     * bna24
-     * 10/21/2024
      */
     private void listenToServer() {
         try {
@@ -307,8 +291,6 @@ public enum Client {
 
     /**
      * Listens for keyboard input from the user
-     * bna24
-     * 10/19/2024
      */
     private void listenToInput() {
         try (Scanner si = new Scanner(System.in)) {
@@ -388,8 +370,6 @@ public enum Client {
      * Handles received message from the ServerThread
      * 
      * @param payload
-     * bna24
-     * 10/20/2024
      */
     private void processPayload(Payload payload) {
         try {
@@ -444,8 +424,6 @@ public enum Client {
         }
     }
 
-    //bna24
-    //10/21/2024
     private void processMessage(long clientId, String message) {
         String name = knownClients.containsKey(clientId) ? knownClients.get(clientId).getClientName() : "Room";
         System.out.println(TextFX.colorize(String.format("%s: %s", name, message), Color.BLUE));
