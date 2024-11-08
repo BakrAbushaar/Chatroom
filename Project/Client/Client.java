@@ -34,6 +34,9 @@ public enum Client {
     private volatile boolean isRunning = true; // volatile for thread-safe visibility
     private ConcurrentHashMap<Long, ClientData> knownClients = new ConcurrentHashMap<>();
     private ClientData myData;
+    private RollPayload roll;
+    private FlipPayLoad flipVariable;
+
 
     // constants (used to reduce potential types when using them in code)
     private final String COMMAND_CHARACTER = "/";
@@ -43,6 +46,8 @@ public enum Client {
     private final String LOGOFF = "logoff";
     private final String LOGOUT = "logout";
     private final String SINGLE_SPACE = " ";
+
+
     private final String ROLL = "roll";
     private final String FLIP = "flip";
 
@@ -175,9 +180,29 @@ public enum Client {
                      //bna24
                     //November 11, 2024
                     case ROLL:
-                        sendRollCommand(commandValue);  
+                        try {
+                            // Check for Format 1: /roll # 
+                            if (!commandValue.contains("d")) { 
+                                int range = Integer.parseInt(commandValue); 
+                                sendRollCommand(range, 0);
+                            } 
+                            // Check for Format 2: /roll #d# 
+                            else { 
+                                String[] parts = commandValue.split("d");
+                                if (parts.length == 2) {
+                                    int diceCount = Integer.parseInt(parts[0]);
+                                    int diceSides = Integer.parseInt(parts[1]);
+                                    sendRollCommand(diceCount, diceSides);  
+                                } else {
+                                    System.out.println(TextFX.colorize("Invalid command format, try /roll #d#", Color.RED));
+                                }
+                            }
+                        } catch (Exception e) {
+                            System.out.println(TextFX.colorize("Invalid command format, try /roll # or /roll #d#", Color.RED));
+                        }
                         wasCommand = true;
                         break;
+
                     case FLIP:
                         sendFlipCommand();  
                         wasCommand = true;
@@ -256,15 +281,13 @@ public enum Client {
      * November 11, 2024
     * Sends a roll request to the server
     */
-    private void sendRollCommand(String commandValue) {
-        Payload p = new Payload();
-        p.setPayloadType(PayloadType.ROLL);
+    private void sendRollCommand(int diceCount, int diceSides) {
+        RollPayload p = new RollPayload(diceCount, diceSides);
         send(p);
     }
     
     private void sendFlipCommand() {
-        Payload p = new Payload();
-        p.setPayloadType(PayloadType.FLIP);
+        FlipPayLoad p = new FlipPayLoad();
         send(p);
     }
     
@@ -430,12 +453,12 @@ public enum Client {
                     processMessage(payload.getClientId(), payload.getMessage());
                     break;
                 case PayloadType.ROLL: // handle roll command
-                    RollPayload rollPayload = (RollPayload) payload;
-                    processRollCommand(rollPayload, knownClients.get(rollPayload.getClientId()));
+                     RollPayload rollPayload = (RollPayload) payload;
+                    processRoll(rollPayload.getClientId(), rollPayload.getDiceCount(), rollPayload.getDiceSides());
                     break;
-                case PayloadType.FLIP: //handle flip command
+                case PayloadType.FLIP: // handle flip command
                     FlipPayLoad flipPayload = (FlipPayLoad) payload;
-                    processFlip(flipPayload);
+                    processFlip(flipPayload.getClientId());
                     break;
                 default:
                     break;
@@ -504,40 +527,16 @@ public enum Client {
     }
     // end payload processors
 
-    private void processRollCommand(RollPayload rollPayload, ClientData clientData){
-        System.out.println("Processing Roll Command for client: " + clientData.getClientName());
-        StringBuilder result = new StringBuilder();
-        result.append(clientData.getClientName()).append(" rolled ");
+    private void processRoll(long clientId, int diceCount, int diceSides) {
+        ClientData cp = knownClients.get(clientId);
+        roll.setDiceCount(diceCount);
+        roll.setDiceSides(diceSides);
+        System.out.println(TextFX.colorize(String.format("%s Set Dice Count and Sides %s,%s", cp.getClientName(), diceCount, diceSides), Color.CYAN));
 
-        //  2d6 format, dice & sides
-        if (rollPayload.getDiceCount() > 0 && rollPayload.getDiceSides() > 0){
-            result.append(rollPayload.getDiceCount()).append("d")
-            .append(rollPayload.getDiceSides());
+    }
+    private void processFlip(long clientId) {
+        ClientData cp = knownClients.get(clientId);
+        System.out.println(TextFX.colorize(String.format(cp.getClientName()), Color.CYAN));
 
-            int total = 0;
-            for (int i = 0; i < rollPayload.getDiceCount(); i++) {
-                int roll = (int)(Math.random() * rollPayload.getDiceSides()) + 1; //rolls dice
-                total += roll;
-                result.append(" ").append(roll); //appennds roll to result
-            }
-            result.append(" and got ").append(total); // total of tolls
-
-        } else {
-                // /roll  100 format
-            int roll = (int) (Math.random() * rollPayload.getDiceSides()) + 1;
-            result.append(rollPayload.getDiceSides()).append(" and got ").append(roll);
-        }
-
-        System.out.println(TextFX.colorize(result.toString(), Color.CYAN));
-
-            }
-
-
-private void processFlip(FlipPayLoad flipPayload) {
-    // Simulate a coin flip (50% chance for heads or tails)
-    String result = Math.random() < 0.5 ? "heads" : "tails";
-    // Print the result of the flip
-    System.out.println(String.format("%s flipped a coin and got %s", flipPayload.getMessage(), result));
-
-}
+    }
 }

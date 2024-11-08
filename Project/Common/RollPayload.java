@@ -10,8 +10,10 @@ public class RollPayload extends Payload {
     
 
     // Constructor for RollPayload
-    public RollPayload() {
+    public RollPayload(int diceCount, int diceSides) {
         super.setPayloadType(PayloadType.ROLL);
+        this.diceCount = diceCount;
+        this.diceSides = diceSides;
 
     }
 

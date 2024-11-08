@@ -115,13 +115,13 @@ public class ServerThread extends BaseServerThread {
                 // bna24
                 //november 11,2024
                    RollPayload rollPayload = (RollPayload) payload;
-                   sendRoll(rollPayload);
+                   sendRoll(rollPayload.getClientId(), rollPayload.getDiceCount(), rollPayload.getDiceSides());
                    break;
                 case FLIP:
                 // bna24
                 // November 11, 2024
                    FlipPayLoad flipPayload = (FlipPayLoad) payload;
-                   sendFlip(flipPayload);
+                   sendFlip(flipPayload.getClientId());
                    break;
                 default:
                     break;
@@ -222,17 +222,16 @@ public class ServerThread extends BaseServerThread {
     // end send methods
 
 
-    public boolean sendRoll(long clientId, String clientName, int diceCount, int diceSides) {
-        RollPayload rollPayload = new RollPayload();
+    public boolean sendRoll(long clientId, int diceCount, int diceSides) {
+        RollPayload rollPayload = new RollPayload(diceCount, diceSides);
         rollPayload.setPayloadType(PayloadType.ROLL);   
         rollPayload.setClientId(clientId);              
-        rollPayload.setMessage(clientName);             
         rollPayload.setDiceCount(diceCount);            
         rollPayload.setDiceSides(diceSides);            
         
         return send(rollPayload);                       
     }
-    public boolean sendFlip(long clientId, String clientName) {
+    public boolean sendFlip(long clientId) {
         FlipPayLoad flipPayload = new FlipPayLoad();
         flipPayload.setPayloadType(PayloadType.FLIP);   
         flipPayload.setClientId(clientId);             
@@ -240,3 +239,4 @@ public class ServerThread extends BaseServerThread {
         
         return send(flipPayload);                      
     }
+}
