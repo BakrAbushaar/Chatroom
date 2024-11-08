@@ -34,8 +34,6 @@ public enum Client {
     private volatile boolean isRunning = true; // volatile for thread-safe visibility
     private ConcurrentHashMap<Long, ClientData> knownClients = new ConcurrentHashMap<>();
     private ClientData myData;
-    private RollPayload roll;
-    private FlipPayLoad flipVariable;
 
 
     // constants (used to reduce potential types when using them in code)
@@ -527,15 +525,21 @@ public enum Client {
     }
     // end payload processors
 
-    private void processRoll(long clientId, int diceCount, int diceSides) {
-        ClientData cp = knownClients.get(clientId);
-        roll.setDiceCount(diceCount);
-        roll.setDiceSides(diceSides);
-        System.out.println(TextFX.colorize(String.format("%s Set Dice Count and Sides %s,%s", cp.getClientName(), diceCount, diceSides), Color.CYAN));
-
+    private void processRoll(long clientId, int diceCount, int diceSides) { 
+        ClientData cp = new ClientData();
+        cp.setClientId(clientId);
+        RollPayload rollPayload = new RollPayload(diceCount, diceSides);
+        
+        rollPayload.setDiceCount(diceCount);
+        rollPayload.setDiceSides(diceSides);
+        
+        System.out.println(TextFX.colorize(String.format("%s Set Dice Count and Sides %d, %d", cp.getClientName(), diceCount, diceSides), Color.CYAN));
     }
+    
     private void processFlip(long clientId) {
-        ClientData cp = knownClients.get(clientId);
+        ClientData cp = new ClientData();
+        cp.setClientId(clientId);
+        FlipPayLoad fp = new FlipPayLoad();
         System.out.println(TextFX.colorize(String.format(cp.getClientName()), Color.CYAN));
 
     }
