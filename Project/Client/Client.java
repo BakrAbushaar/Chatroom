@@ -16,6 +16,8 @@ import Project.Common.Payload;
 import Project.Common.PayloadType;
 import Project.Common.ConnectionPayload;
 import Project.Common.TextFX;
+import Project.Common.RollPayload;
+import Project.Common.FlipPayLoad;
 /**
  * Demoing bi-directional communication between client and server in a
  * multi-client scenario
@@ -33,6 +35,7 @@ public enum Client {
     private ConcurrentHashMap<Long, ClientData> knownClients = new ConcurrentHashMap<>();
     private ClientData myData;
 
+
     // constants (used to reduce potential types when using them in code)
     private final String COMMAND_CHARACTER = "/";
     private final String CREATE_ROOM = "createroom";
@@ -41,6 +44,11 @@ public enum Client {
     private final String LOGOFF = "logoff";
     private final String LOGOUT = "logout";
     private final String SINGLE_SPACE = " ";
+
+
+    private final String ROLL = "roll";
+    private final String FLIP = "flip";
+
 
     // needs to be private now that the enum logic is handling this
     private Client() {
@@ -167,6 +175,37 @@ public enum Client {
                         sendDisconnect();
                         wasCommand = true;
                         break;
+                     //bna24
+                    //November 11, 2024
+                    case ROLL:
+                        try {
+                            // Check for Format 1: /roll # 
+                            if (!commandValue.contains("d")) { 
+                                int range = Integer.parseInt(commandValue); 
+                                sendRollCommand(range, 0);
+                            } 
+                            // Check for Format 2: /roll #d# 
+                            else { 
+                                String[] parts = commandValue.split("d");
+                                if (parts.length == 2) {
+                                    int diceCount = Integer.parseInt(parts[0]);
+                                    int diceSides = Integer.parseInt(parts[1]);
+                                    sendRollCommand(diceCount, diceSides);  
+                                } else {
+                                    System.out.println(TextFX.colorize("Invalid command format, try /roll #d#", Color.RED));
+                                }
+                            }
+                        } catch (Exception e) {
+                            System.out.println(TextFX.colorize("Invalid command format, try /roll # or /roll #d#", Color.RED));
+                        }
+                        wasCommand = true;
+                        break;
+
+                    case FLIP:
+                        sendFlipCommand();  
+                        wasCommand = true;
+                        break;
+                
                 }
                 return wasCommand;
             }
@@ -234,6 +273,22 @@ public enum Client {
         send(cp);
     }
 
+
+    /**
+     * bna24
+     * November 11, 2024
+    * Sends a roll request to the server
+    */
+    private void sendRollCommand(int diceCount, int diceSides) {
+        RollPayload p = new RollPayload(diceCount, diceSides);
+        send(p);
+    }
+    
+    private void sendFlipCommand() {
+        FlipPayLoad p = new FlipPayLoad();
+        send(p);
+    }
+    
     /**
      * Generic send that passes any Payload over the socket (to ServerThread)
      * 
@@ -395,6 +450,14 @@ public enum Client {
                 case PayloadType.MESSAGE: // displays a received message
                     processMessage(payload.getClientId(), payload.getMessage());
                     break;
+                case PayloadType.ROLL: // handle roll command
+                     RollPayload rollPayload = (RollPayload) payload;
+                    processRoll(rollPayload.getClientId(), rollPayload.getDiceCount(), rollPayload.getDiceSides());
+                    break;
+                case PayloadType.FLIP: // handle flip command
+                    FlipPayLoad flipPayload = (FlipPayLoad) payload;
+                    processFlip(flipPayload.getClientId());
+                    break;
                 default:
                     break;
             }
@@ -462,4 +525,22 @@ public enum Client {
     }
     // end payload processors
 
+    private void processRoll(long clientId, int diceCount, int diceSides) { 
+        ClientData cp = new ClientData();
+        cp.setClientId(clientId);
+        RollPayload rollPayload = new RollPayload(diceCount, diceSides);
+        
+        rollPayload.setDiceCount(diceCount);
+        rollPayload.setDiceSides(diceSides);
+        
+        System.out.println(TextFX.colorize(String.format("%s Set Dice Count and Sides %d, %d", cp.getClientName(), diceCount, diceSides), Color.CYAN));
+    }
+    
+    private void processFlip(long clientId) {
+        ClientData cp = new ClientData();
+        cp.setClientId(clientId);
+        FlipPayLoad fp = new FlipPayLoad();
+        System.out.println(TextFX.colorize(String.format(cp.getClientName()), Color.CYAN));
+
+    }
 }
