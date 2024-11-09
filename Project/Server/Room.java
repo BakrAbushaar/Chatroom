@@ -231,71 +231,57 @@ public class Room implements AutoCloseable{
     }
 
 
+   public void handleRoll(ServerThread sender, int diceCount, int diceSides) {
+    String clientName = sender.getClientName();
+    String resultMessage;
 
-    protected void handleRoll(ServerThread sender, int diceCount, int diceSides) {
-        if (!clientsInRoom.containsKey(sender.getClientId())) {
-            sender.sendMessage("You are not in this room.");
-            return;
-        }
-
-        String clientName = sender.getClientName();
-        String resultMessage;
-
-        if (diceCount == 0) {
-            // Handle  /roll #
-            if (diceSides <= 0) {
-                sender.sendMessage("Invalid range parameter.");
-                return;
-            }
-
-            int result = random.nextInt(diceSides) + 1; // Random number between 1 and diceSides
+    if (diceSides > 0) {
+        if (diceCount == 1) {
+            int result = random.nextInt(diceSides) + 1;
             resultMessage = String.format("%s rolled %d and got %d", clientName, diceSides, result);
         } else {
-            // Handle Format 2: /roll #d#
-            if (diceCount <= 0 || diceSides <= 1) {
-                sender.sendMessage("Invalid dice roll parameters.");
-                return;
-            }
-
             int total = 0;
             StringBuilder rollResults = new StringBuilder();
-
-            // Calculate the roll for each die
-            for (int i = 1; i <= diceCount; i++) {
-                int roll = random.nextInt(diceSides) + 1; // Generates a number between 1 and diceSides
+            for (int i = 0; i < diceCount; i++) {
+                int roll = random.nextInt(diceSides) + 1;
                 total += roll;
-                rollResults.append(roll);
-                if (i < diceCount) {
-                    rollResults.append(", ");
-                }
+                rollResults.append(roll).append(i < diceCount - 1 ? ", " : "");
             }
-
-            // Construct the result message for /roll #d#
             resultMessage = String.format("%s rolled %dd%d and got %d (%s)", clientName, diceCount, diceSides, total, rollResults);
         }
 
-        // Print and send the result message
-        System.out.println(resultMessage);
-        sendMessage(sender, resultMessage);
-    }
-
-
-
-
-    protected void handleFlip(ServerThread sender) {
-        if (!clientsInRoom.containsKey(sender.getClientId())) {
-            sender.sendMessage("You are not in this room.");
-            return;
-        }
-
-        String clientName = sender.getClientName();
-        String flipResult = Math.random() < 0.5 ? "heads" : "tails";
-        
-        System.out.println(String.format("%s flipped a coin and got %s", clientName, flipResult));
-
-        
-        sendMessage(sender, String.format("%s flipped a coin and got %s", clientName, flipResult));
+        broadcastMessage(sender, resultMessage); 
+    } else {
+        sender.sendMessage("Invalid roll command parameters.");
     }
 }
+    
+
+
+
+
+   public void handleFlip(ServerThread sender) {
+    String clientName = sender.getClientName();
+    String result = random.nextBoolean() ? "heads" : "tails";
+    String resultMessage = String.format("%s flipped a coin and got %s", clientName, result);
+
+    broadcastMessage(sender, resultMessage); 
+}
+    
+
+
+
+
+
+
+
+    private void broadcastMessage(ServerThread sender, String message) {
+    long senderId = sender.getClientId();
+    clientsInRoom.values().forEach(client -> client.sendMessage(senderId, message));
+}
+}
+    
+    
+
 
     // end receive data from ServerThread
