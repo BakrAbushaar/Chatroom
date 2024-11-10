@@ -270,15 +270,12 @@ private String formatText(String message) {
             resultMessage = String.format("%s rolled %d and got %d", clientName, diceSides, result);
         } else {
             int total = 0;
-            StringBuilder rollResults = new StringBuilder();
             for (int i = 0; i < diceCount; i++) {
                 int roll = random.nextInt(diceSides) + 1;
                 total += roll;
-                rollResults.append(roll).append(i < diceCount - 1 ? ", " : "");
             }
-            resultMessage = String.format("%s rolled %dd%d and got %d (%s)", clientName, diceCount, diceSides, total, rollResults);
+            resultMessage = String.format("%s rolled %dd%d and got %d", clientName, diceCount, diceSides, total);
         }
-
         broadcastMessage(sender, resultMessage); 
     } else {
         sender.sendMessage("Invalid roll command parameters.");
