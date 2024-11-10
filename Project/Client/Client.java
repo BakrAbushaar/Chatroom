@@ -181,13 +181,13 @@ public enum Client {
                         try {
                             if (!commandValue.contains("d")) { 
                                 int range = Integer.parseInt(commandValue); 
-                                sendRollCommand(1, range);  // Single roll case
+                                sendRollCommand(1, range);  // Single roll 
                             } else { 
                                 String[] parts = commandValue.split("d");
                                 if (parts.length == 2) {
                                     int diceCount = Integer.parseInt(parts[0]);
                                     int diceSides = Integer.parseInt(parts[1]);
-                                    sendRollCommand(diceCount, diceSides);  // Multiple dice case
+                                    sendRollCommand(diceCount, diceSides);  // Multiple dice 
                                 } else {
                                     System.out.println(TextFX.colorize("Invalid command format, try /roll #d#", Color.RED));
                                 }
