@@ -179,18 +179,15 @@ public enum Client {
                     //November 11, 2024
                     case ROLL:
                         try {
-                            // Check for Format 1: /roll # 
                             if (!commandValue.contains("d")) { 
                                 int range = Integer.parseInt(commandValue); 
-                                sendRollCommand(range, 0);
-                            } 
-                            // Check for Format 2: /roll #d# 
-                            else { 
+                                sendRollCommand(1, range);  // Single roll case
+                            } else { 
                                 String[] parts = commandValue.split("d");
                                 if (parts.length == 2) {
                                     int diceCount = Integer.parseInt(parts[0]);
                                     int diceSides = Integer.parseInt(parts[1]);
-                                    sendRollCommand(diceCount, diceSides);  
+                                    sendRollCommand(diceCount, diceSides);  // Multiple dice case
                                 } else {
                                     System.out.println(TextFX.colorize("Invalid command format, try /roll #d#", Color.RED));
                                 }
@@ -280,13 +277,13 @@ public enum Client {
     * Sends a roll request to the server
     */
     private void sendRollCommand(int diceCount, int diceSides) {
-        RollPayload p = new RollPayload(diceCount, diceSides);
-        send(p);
+        RollPayload rollPayload  = new RollPayload(diceCount, diceSides);
+        send(rollPayload );
     }
     
     private void sendFlipCommand() {
-        FlipPayLoad p = new FlipPayLoad();
-        send(p);
+        FlipPayLoad flipPayload  = new FlipPayLoad();
+        send(flipPayload );
     }
     
     /**

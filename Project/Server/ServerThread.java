@@ -111,18 +111,17 @@ public class ServerThread extends BaseServerThread {
                 case DISCONNECT:
                     currentRoom.disconnect(this);
                     break;
-                case ROLL:
                 // bna24
                 //november 11,2024
-                   RollPayload rollPayload = (RollPayload) payload;
-                   sendRoll(rollPayload.getClientId(), rollPayload.getDiceCount(), rollPayload.getDiceSides());
-                   break;
-                case FLIP:
+                case ROLL:
+                RollPayload rollPayload = (RollPayload) payload;
+                currentRoom.handleRoll(this, rollPayload.getDiceCount(), rollPayload.getDiceSides());
+                break;
                 // bna24
                 // November 11, 2024
-                   FlipPayLoad flipPayload = (FlipPayLoad) payload;
-                   sendFlip(flipPayload.getClientId());
-                   break;
+                case FLIP:
+                currentRoom.handleFlip(this);
+                break;
                 default:
                     break;
             }
@@ -239,4 +238,19 @@ public class ServerThread extends BaseServerThread {
         
         return send(flipPayload);                      
     }
+
+    protected void handlePayload(Payload payload) {
+        switch (payload.getPayloadType()) {
+            case ROLL:
+                RollPayload rollPayload = (RollPayload) payload;
+                currentRoom.handleRoll(this, rollPayload.getDiceCount(), rollPayload.getDiceSides());
+                break;
+            case FLIP:
+                currentRoom.handleFlip(this);
+                break;
+            default:
+                System.out.println("Unhandled payload type: " + payload.getPayloadType());
+        }
+    }
+    
 }
