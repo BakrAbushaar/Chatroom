@@ -221,6 +221,7 @@ public class ServerThread extends BaseServerThread {
     // end send methods
 
 
+
     public boolean sendRoll(long clientId, int diceCount, int diceSides) {
         RollPayload rollPayload = new RollPayload(diceCount, diceSides);
         rollPayload.setPayloadType(PayloadType.ROLL);   
@@ -238,6 +239,8 @@ public class ServerThread extends BaseServerThread {
         
         return send(flipPayload);                      
     }
+
+
 
     protected void handlePayload(Payload payload) {
         switch (payload.getPayloadType()) {

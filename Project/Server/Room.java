@@ -187,6 +187,8 @@ public class Room implements AutoCloseable{
         if (!isRunning) { // block action if Room isn't running
             return;
         }
+        String formattedMessage = formatText(message);
+        
 
         // Note: any desired changes to the message must be done before this section
         long senderId = sender == null ? ServerThread.DEFAULT_CLIENT_ID : sender.getClientId();
@@ -195,9 +197,9 @@ public class Room implements AutoCloseable{
         // to be sent
         // Note: this uses a lambda expression for each item in the values() collection,
         // it's one way we can safely remove items during iteration
-        info(String.format("sending message to %s recipients: %s", getName(), clientsInRoom.size(), message));
+        info(String.format("sending message to %s recipients: %s", getName(), clientsInRoom.size(), formattedMessage));
         clientsInRoom.values().removeIf(client -> {
-            boolean failedToSend = !client.sendMessage(senderId, message);
+            boolean failedToSend = !client.sendMessage(senderId, formattedMessage);
             if (failedToSend) {
                 info(String.format("Removing disconnected client[%s] from list", client.getClientId()));
                 disconnect(client);
@@ -229,6 +231,33 @@ public class Room implements AutoCloseable{
     protected void clientDisconnect(ServerThread sender) {
         disconnect(sender);
     }
+
+
+
+
+
+//  Text Formatting
+
+private String formatText(String message) {
+    String boldPattern = "\\*\\*(.*?)\\*\\*";
+    String italicPattern = "\\*(.*?)\\*";
+    String underlinePattern = "_(.*?)_";
+    String redPattern = "#r(.*?)r#";
+    String greenPattern = "#g(.*?)g#";
+    String bluePattern = "#b(.*?)b#";   
+
+    //replaces with HTML
+    message = message.replaceAll(boldPattern, "<b>$1</b>");
+    message = message.replaceAll(italicPattern, "<i>$1</i>");
+    message = message.replaceAll(underlinePattern, "<u>$1</u>");
+    message = message.replaceAll(redPattern, "<red>$1</red>");
+    message = message.replaceAll(greenPattern, "<green>$1</green>");
+    message = message.replaceAll(bluePattern, "<blue>$1</blue>");
+
+    return message;
+}
+
+
 
 
    public void handleRoll(ServerThread sender, int diceCount, int diceSides) {
@@ -268,9 +297,6 @@ public class Room implements AutoCloseable{
     broadcastMessage(sender, resultMessage); 
 }
     
-
-
-
 
 
 
