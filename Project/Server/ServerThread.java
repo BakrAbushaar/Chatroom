@@ -242,18 +242,6 @@ public class ServerThread extends BaseServerThread {
 
 
 
-    protected void handlePayload(Payload payload) {
-        switch (payload.getPayloadType()) {
-            case ROLL:
-                RollPayload rollPayload = (RollPayload) payload;
-                currentRoom.handleRoll(this, rollPayload.getDiceCount(), rollPayload.getDiceSides());
-                break;
-            case FLIP:
-                currentRoom.handleFlip(this);
-                break;
-            default:
-                System.out.println("Unhandled payload type: " + payload.getPayloadType());
-        }
-    }
+   
     
 }
