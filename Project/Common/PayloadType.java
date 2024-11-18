@@ -8,7 +8,7 @@ public enum PayloadType {
     ROOM_CREATE,
     ROOM_JOIN, // join/leave room based on boolean
     
-
+    ROOM_LIST,
     //bna24
     // November 11, 2024
     ROLL, // roll commands dor dice
