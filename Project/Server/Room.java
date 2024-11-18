@@ -237,7 +237,8 @@ public class Room implements AutoCloseable{
 
 
 //  Text Formatting
-
+//  bna24
+//  november 11, 2024
 private String formatText(String message) {
     String boldPattern = "\\*\\*(.*?)\\*\\*";
     String italicPattern = "\\*(.*?)\\*";
@@ -259,7 +260,8 @@ private String formatText(String message) {
 
 
 
-
+//bna24
+//November 11, 2024
    public void handleRoll(ServerThread sender, int diceCount, int diceSides) {
     String clientName = sender.getClientName();
     String resultMessage;
@@ -296,8 +298,8 @@ private String formatText(String message) {
     
 
 
-
-
+//bna24
+//November 11, 2024
     private void broadcastMessage(ServerThread sender, String message) {
     long senderId = sender.getClientId();
     clientsInRoom.values().forEach(client -> client.sendMessage(senderId, message));

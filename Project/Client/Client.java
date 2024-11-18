@@ -197,7 +197,8 @@ public enum Client {
                         }
                         wasCommand = true;
                         break;
-
+                    //bna24
+                    //November 11, 2024
                     case FLIP:
                         sendFlipCommand();  
                         wasCommand = true;
@@ -271,16 +272,15 @@ public enum Client {
     }
 
 
-    /**
-     * bna24
-     * November 11, 2024
-    * Sends a roll request to the server
-    */
+    
     private void sendRollCommand(int diceCount, int diceSides) {
         RollPayload rollPayload  = new RollPayload(diceCount, diceSides);
         send(rollPayload );
     }
-    
+    /**
+     * bna24
+     * November 11, 2024
+    */
     private void sendFlipCommand() {
         FlipPayLoad flipPayload  = new FlipPayLoad();
         send(flipPayload );
