@@ -54,6 +54,7 @@ public class ConnectionPanel extends JPanel {
         content.add(portLabel);
         content.add(portValue);
         content.add(portError);
+        System.out.println("Host: " + host + ", Port: " + port);
 
         // Add Next button
         JButton button = new JButton("Next");

@@ -60,6 +60,20 @@ public class Room implements AutoCloseable{
 
     }
 
+
+
+
+    protected synchronized void connect(ServerThread client) {
+        if (!isRunning) { // block action if Room isn't running
+            return;
+        }
+        long id = client.getClientId();
+        connect(client);
+       
+        
+        // Improved logging with user data
+        info(String.format("%s[%s] connected", client.getClientName(), id));
+    }
     /**
      * Takes a ServerThread and removes them from the Server
      * Adding the synchronized keyword ensures that only one thread can execute

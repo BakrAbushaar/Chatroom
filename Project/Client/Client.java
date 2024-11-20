@@ -12,6 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import Project.Client.CardView;
 import Project.Client.Interfaces.IConnectionEvents;
 import Project.Client.Interfaces.IClientEvents;
 import Project.Client.Interfaces.IMessageEvents;
@@ -24,6 +25,7 @@ import Project.Common.TextFX;
 import Project.Common.RollPayload;
 import Project.Common.FlipPayLoad;
 import Project.Common.LoggerUtil;
+
 /**
  * Demoing bi-directional communication between client and server in a
  * multi-client scenario
@@ -74,6 +76,7 @@ public enum Client {
     private final String FLIP = "flip";
 
     private static IClientEvents events;
+    
     // needs to be private now that the enum logic is handling this
     private Client() {
         System.out.println("Client Created");
@@ -113,6 +116,7 @@ public enum Client {
         } catch (IOException e) {
             LoggerUtil.INSTANCE.severe("IOException", e);
         }
+        LoggerUtil.INSTANCE.info("THIS IS THE PORT AND ADDRESS" + port + " " + address);
         return isConnected();
     }
 
@@ -131,7 +135,8 @@ public enum Client {
             LoggerUtil.INSTANCE.info("Client connected");
             // Use CompletableFuture to run listenToServer() in a separate thread
             CompletableFuture.runAsync(this::listenToServer);
-            sendClientName();
+            listenToServer();
+            sendConnect();
         } catch (UnknownHostException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -217,6 +222,7 @@ public enum Client {
                         break;
                     // Note: these are to disconnect, they're not for changing rooms
                     case DISCONNECT:
+                    
                     case LOGOFF:
                     case LOGOUT:
                         sendDisconnect();
@@ -296,6 +302,19 @@ public enum Client {
         p.setMessage(room);
         send(p);
     }
+
+
+    public void sendConnect() throws IOException {
+        ConnectionPayload p = new ConnectionPayload();
+        p.setPayloadType(PayloadType.CONNECT);
+        p.setClientName(myData.getClientName());
+        p.isConnect();
+        send(p);
+    }
+        
+    
+
+
     /**
      * Tells the server-side we want to disconnect
      */
@@ -501,6 +520,10 @@ public enum Client {
                     cp = (ConnectionPayload) payload;
                     processDisconnect(cp.getClientId(), cp.getClientName());
                     // note: we want this to cascade
+                 case PayloadType.CONNECT:
+                    cp = (ConnectionPayload) payload;
+                    processConnect(cp.getClientId(), cp.getClientName(), cp.getMessage());
+                    break;
                 case PayloadType.ROOM_JOIN: // add/remove client info from known clients
                     cp = (ConnectionPayload) payload;
                     processRoomAction(cp.getClientId(), cp.getClientName(), cp.getMessage(), cp.isConnect());
@@ -510,7 +533,7 @@ public enum Client {
                     break;
                 case PayloadType.ROLL: // handle roll command
                      RollPayload rollPayload = (RollPayload) payload;
-                    processRoll(rollPayload.getClientId(), rollPayload.getDiceCount(), rollPayload.getDiceSides());
+                     processRoll(rollPayload.getClientId(), rollPayload.getDiceCount(), rollPayload.getDiceSides());
                     break;
                 case PayloadType.FLIP: // handle flip command
                     FlipPayLoad flipPayload = (FlipPayLoad) payload;
@@ -542,6 +565,28 @@ public enum Client {
 
     // payload processors
     // payload processors
+
+    private void processConnect(long clientId, String clientName, String roomName) {
+    // Check if the client is already in the known clients list
+    if (!knownClients.containsKey(clientId)) {
+        // Add the client to the known clients list
+        ClientData clientData = new ClientData();
+        clientData.setClientId(clientId);
+        clientData.setClientName(clientName);
+        knownClients.put(clientId, clientData);
+
+        // Print confirmation of the connection
+        System.out.println(TextFX.colorize(
+            String.format("*%s[%s] connected to room %s*", clientName, clientId, roomName),
+            Color.GREEN
+        ));
+
+        // Notify via IRoomEvents
+        ((IRoomEvents) events).onRoomAction(clientId, clientName, roomName, true);
+    }
+}
+
+
     private void processRoomsList(List<String> rooms, String message) {
         // invoke onReceiveRoomList callback
         ((IRoomEvents) events).onReceiveRoomList(rooms, message);

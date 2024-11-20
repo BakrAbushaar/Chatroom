@@ -15,5 +15,6 @@ public enum PayloadType {
     FLIP, // flip for coin toss
 
 
-    MESSAGE // sender and message
+    MESSAGE, // sender and message
+    CONNECT,
 }

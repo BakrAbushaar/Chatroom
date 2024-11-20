@@ -64,6 +64,9 @@ public class ClientUI extends JFrame implements IConnectionEvents, IMessageEvent
         container.add(roomLabel, BorderLayout.NORTH);
         container.add(cardContainer, BorderLayout.CENTER);
 
+
+
+
         cardContainer.addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
@@ -86,6 +89,9 @@ public class ClientUI extends JFrame implements IConnectionEvents, IMessageEvent
         // Initialize panels
         connectionPanel = new ConnectionPanel(this);
         userDetailsPanel = new UserDetailsPanel(this);
+        cardContainer.add(connectionPanel, CardView.CONNECT.name()); // Add the Connection Panel
+        cardContainer.add(userDetailsPanel, CardView.USER_INFO.name()); // Add the User Details Panel
+    
         chatPanel = new ChatPanel(this);
         roomsPanel = new RoomsPanel(this);
 
@@ -152,19 +158,24 @@ public class ClientUI extends JFrame implements IConnectionEvents, IMessageEvent
     public void addPanel(String cardName, JPanel panel) {
         cardContainer.add(panel, cardName);
     }
+    //void onRoomAction(long clientId, String clientName, String roomName, boolean isJoin);
+        @Override
+        public void connect() {
+            LoggerUtil.INSTANCE.info("Connecting...");
+            String username = userDetailsPanel.getUsername();
+            String host = connectionPanel.getHost();
+            int port = connectionPanel.getPort();
+            LoggerUtil.INSTANCE.info("testing to see if this reads" + port + host + username);
+            setTitle(originalTitle + " - " + username);
+            Client.INSTANCE.connect(host, port, username, this);
+            LoggerUtil.INSTANCE.info("INSTANCE.Connect test");
 
-    @Override
-    public void connect() {
-        String username = userDetailsPanel.getUsername();
-        String host = connectionPanel.getHost();
-        int port = connectionPanel.getPort();
-        setTitle(originalTitle + " - " + username);
-        Client.INSTANCE.connect(host, port, username, this);
-    }
+            findAndSetCurrentPanel();
+        }
 
     public static void main(String[] args) {
-        // TODO update with your UCID instead of mine
-        SwingUtilities.invokeLater(() -> new ClientUI("MT85-Client"));
+        // bna24
+        SwingUtilities.invokeLater(() -> new ClientUI("bna24-Client"));
     }
     // Interface methods start
 
@@ -183,6 +194,14 @@ public class ClientUI extends JFrame implements IConnectionEvents, IMessageEvent
         }
     }
 
+/* 
+    public void onClientConnect(long clientId, String clientName, String message) {
+        if (currentCard.ordinal() >= CardView.CHAT.ordinal()){
+            chatPanel.addText(String.format(" *%s %s* ", clientName, message));
+        }}
+          */  
+        
+    
     @Override
     public void onMessageReceive(long clientId, String message) {
         if (currentCard.ordinal() >= CardView.CHAT.ordinal()) {
