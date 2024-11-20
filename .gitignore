@@ -24,6 +24,7 @@ local.properties
 *.ear
 *.nar
 hs_err_pid*
+*.sh
 
 #############################
 ## Class Specifics
@@ -33,3 +34,5 @@ config.*
 *.conf
 .vscode
 .DS_Store
+.log
+.log*
