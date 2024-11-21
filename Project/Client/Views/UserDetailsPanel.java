@@ -57,6 +57,7 @@ public class UserDetailsPanel extends JPanel {
                 LoggerUtil.INSTANCE.info("Chosen username: " + username);
                 userError.setVisible(false);
                 controls.connect();
+    
             }
         });
 

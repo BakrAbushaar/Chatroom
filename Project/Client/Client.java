@@ -109,6 +109,7 @@ public enum Client {
             // channel to listen to server
             in = new ObjectInputStream(server.getInputStream());
             LoggerUtil.INSTANCE.info("Client connected");
+            sendConnect();
             // Use CompletableFuture to run listenToServer() in a separate thread
             CompletableFuture.runAsync(this::listenToServer);
         } catch (UnknownHostException e) {
@@ -126,6 +127,7 @@ public enum Client {
     public boolean connect(String address, int port, String username, IClientEvents callback) {
         myData.setClientName(username);
         Client.events = callback;
+        System.out.println("Client events set to: " + callback.getClass().getName());
         try {
             server = new Socket(address, port);
             // channel to send to server
@@ -133,10 +135,9 @@ public enum Client {
             // channel to listen to server
             in = new ObjectInputStream(server.getInputStream());
             LoggerUtil.INSTANCE.info("Client connected");
+            sendConnect();
             // Use CompletableFuture to run listenToServer() in a separate thread
             CompletableFuture.runAsync(this::listenToServer);
-            listenToServer();
-            sendConnect();
         } catch (UnknownHostException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -222,7 +223,6 @@ public enum Client {
                         break;
                     // Note: these are to disconnect, they're not for changing rooms
                     case DISCONNECT:
-                    
                     case LOGOFF:
                     case LOGOUT:
                         sendDisconnect();
@@ -256,6 +256,7 @@ public enum Client {
                         sendFlipCommand();  
                         wasCommand = true;
                         break;
+                        
                 
                 }
                 return wasCommand;
@@ -308,7 +309,8 @@ public enum Client {
         ConnectionPayload p = new ConnectionPayload();
         p.setPayloadType(PayloadType.CONNECT);
         p.setClientName(myData.getClientName());
-        p.isConnect();
+        p.setConnect(true);
+        System.out.println("client.sendConnect()  Connection payload.CONNECT sent with name: " + myData.getClientName());
         send(p);
     }
         
@@ -400,7 +402,8 @@ public enum Client {
             while (isRunning && isConnected()) {
                 Payload fromServer = (Payload) in.readObject(); // blocking read
                 if (fromServer != null) {
-                    // System.out.println(fromServer);
+                System.out.println("Client received payload: " + fromServer.getPayloadType());
+
                     processPayload(fromServer);
                 } else {
                     System.out.println("Server disconnected");
@@ -505,11 +508,15 @@ public enum Client {
      */
     private void processPayload(Payload payload) {
         try {
-            System.out.println("Received Payload: " + payload);
             switch (payload.getPayloadType()) {
                 case PayloadType.CLIENT_ID: // get id assigned
+                System.out.println("CLIENT_ID payload received --- ProcessPayload");
                     ConnectionPayload cp = (ConnectionPayload) payload;
                     processClientData(cp.getClientId(), cp.getClientName());
+                        if (Client.events != null && Client.events instanceof IConnectionEvents) {
+                            ((IConnectionEvents) Client.events).onReceiveClientId(cp.getClientId());
+                            System.out.println("onReceiveClientId called with ID: " + cp.getClientId());
+                    }
                     break;
                 case PayloadType.SYNC_CLIENT: // silent add
                     cp = (ConnectionPayload) payload;

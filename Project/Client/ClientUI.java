@@ -91,7 +91,7 @@ public class ClientUI extends JFrame implements IConnectionEvents, IMessageEvent
         userDetailsPanel = new UserDetailsPanel(this);
         cardContainer.add(connectionPanel, CardView.CONNECT.name()); // Add the Connection Panel
         cardContainer.add(userDetailsPanel, CardView.USER_INFO.name()); // Add the User Details Panel
-    
+       
         chatPanel = new ChatPanel(this);
         roomsPanel = new RoomsPanel(this);
 
@@ -161,12 +161,12 @@ public class ClientUI extends JFrame implements IConnectionEvents, IMessageEvent
     //void onRoomAction(long clientId, String clientName, String roomName, boolean isJoin);
         @Override
         public void connect() {
-            LoggerUtil.INSTANCE.info("Connecting...");
+            LoggerUtil.INSTANCE.info("Connecting... (ClientUI)");
             String username = userDetailsPanel.getUsername();
             String host = connectionPanel.getHost();
             int port = connectionPanel.getPort();
-            LoggerUtil.INSTANCE.info("testing to see if this reads" + port + host + username);
             setTitle(originalTitle + " - " + username);
+            LoggerUtil.INSTANCE.info("testing to see if this reads " + port + " " + host + " " + username);
             Client.INSTANCE.connect(host, port, username, this);
             LoggerUtil.INSTANCE.info("INSTANCE.Connect test");
 
@@ -194,7 +194,7 @@ public class ClientUI extends JFrame implements IConnectionEvents, IMessageEvent
         }
     }
 
-/* 
+        /* 
     public void onClientConnect(long clientId, String clientName, String message) {
         if (currentCard.ordinal() >= CardView.CHAT.ordinal()){
             chatPanel.addText(String.format(" *%s %s* ", clientName, message));
@@ -212,8 +212,10 @@ public class ClientUI extends JFrame implements IConnectionEvents, IMessageEvent
 
     @Override
     public void onReceiveClientId(long id) {
+        System.out.println("ClientUI: Received client ID = " + id);
         show(CardView.CHAT.name());
         chatPanel.addText("*You connected*");
+        LoggerUtil.INSTANCE.info("Switched to CHAT panel.");
     }
 
     @Override

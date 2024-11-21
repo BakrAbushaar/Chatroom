@@ -246,7 +246,11 @@ public class Room implements AutoCloseable{
         disconnect(sender);
     }
 
-
+    public void handleClientConnect(ServerThread client, String clientName) {
+        client.setClientName(clientName);
+        addClient(client); 
+        System.out.println("Client connected to room: " + getName());
+    }
 
 
 

@@ -70,6 +70,7 @@ public class ServerThread extends BaseServerThread {
 
     @Override
     protected void onInitialized() {
+        System.out.println("ServerThread.onInitialized called");
         onInitializationComplete.accept(this); // Notify server that initialization is complete
     }
 
@@ -97,9 +98,12 @@ public class ServerThread extends BaseServerThread {
         try {
             switch (payload.getPayloadType()) {
                 case CLIENT_CONNECT:
-                    ConnectionPayload cp = (ConnectionPayload) payload;
-                    setClientName(cp.getClientName());
-                    break;
+                    ConnectionPayload connectionPayload = (ConnectionPayload) payload;
+                    setClientName(connectionPayload.getClientName());
+                    System.out.println("Client connected with name: " + connectionPayload.getClientName());
+
+                    sendClientId(this.clientId);
+                break;
                 case MESSAGE:
                     currentRoom.sendMessage(this, payload.getMessage());
                     break;
