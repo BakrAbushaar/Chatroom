@@ -109,6 +109,7 @@ public enum Client {
             // channel to listen to server
             in = new ObjectInputStream(server.getInputStream());
             LoggerUtil.INSTANCE.info("Client connected");
+            sendConnect();
             // Use CompletableFuture to run listenToServer() in a separate thread
             CompletableFuture.runAsync(this::listenToServer);
         } catch (UnknownHostException e) {
@@ -133,10 +134,9 @@ public enum Client {
             // channel to listen to server
             in = new ObjectInputStream(server.getInputStream());
             LoggerUtil.INSTANCE.info("Client connected");
+            sendConnect();
             // Use CompletableFuture to run listenToServer() in a separate thread
             CompletableFuture.runAsync(this::listenToServer);
-            listenToServer();
-            sendConnect();
         } catch (UnknownHostException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -165,7 +165,6 @@ public enum Client {
         Matcher localhostMatcher = localhostPattern.matcher(text);
         return ipMatcher.matches() || localhostMatcher.matches();
     }
-
     /**
      * Controller for handling various text commands.
      * <p>
@@ -305,7 +304,7 @@ public enum Client {
 
 
     public void sendConnect() throws IOException {
-        ConnectionPayload p = new ConnectionPayload();
+        ConnectionPayload p = new ConnectionPayload(); //tried changing to Payload
         p.setPayloadType(PayloadType.CONNECT);
         p.setClientName(myData.getClientName());
         p.isConnect();
@@ -621,6 +620,7 @@ public enum Client {
         if (myData.getClientId() == ClientData.DEFAULT_CLIENT_ID) {
             myData.setClientId(clientId);
             myData.setClientName(clientName);
+            ((IConnectionEvents) events).onReceiveClientId(clientId);
             // knownClients.put(cp.getClientId(), myData);// <-- this is handled later
         }
     }

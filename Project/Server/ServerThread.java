@@ -112,6 +112,7 @@ public class ServerThread extends BaseServerThread {
                 case DISCONNECT:
                     currentRoom.disconnect(this);
                     break;
+                
                 // bna24
                 //november 11,2024
                 case ROLL:
