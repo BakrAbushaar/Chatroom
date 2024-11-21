@@ -171,8 +171,6 @@ public class ClientUI extends JFrame implements IConnectionEvents, IMessageEvent
             LoggerUtil.INSTANCE.info("testing to see if this reads " + port + " " + host + " " + username);
             Client.INSTANCE.connect(host, port, username, this);
             LoggerUtil.INSTANCE.info("INSTANCE.Connect test");
-
-            findAndSetCurrentPanel();
         }
 
     public static void main(String[] args) {

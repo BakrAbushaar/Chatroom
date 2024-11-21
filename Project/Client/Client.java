@@ -109,7 +109,6 @@ public enum Client {
             // channel to listen to server
             in = new ObjectInputStream(server.getInputStream());
             LoggerUtil.INSTANCE.info("Client connected");
-            sendConnect();
             // Use CompletableFuture to run listenToServer() in a separate thread
             CompletableFuture.runAsync(this::listenToServer);
         } catch (UnknownHostException e) {
@@ -135,7 +134,7 @@ public enum Client {
             // channel to listen to server
             in = new ObjectInputStream(server.getInputStream());
             LoggerUtil.INSTANCE.info("Client connected");
-            sendConnect();
+            sendClientName();
             // Use CompletableFuture to run listenToServer() in a separate thread
             CompletableFuture.runAsync(this::listenToServer);
         } catch (UnknownHostException e) {
