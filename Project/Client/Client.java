@@ -36,8 +36,6 @@ import Project.Common.LoggerUtil;
 public enum Client {
     INSTANCE;
 
-
-
 {
         // TODO moved to ClientUI (this repeat doesn't do anything since config is set
         // only once)

@@ -287,16 +287,16 @@ private String formatText(String message) {
     if (diceSides > 0) {
         if (diceCount == 1) {
             int result = random.nextInt(diceSides) + 1;
-            resultMessage = String.format("%s rolled %d and got %d", clientName, diceSides, result);
+            resultMessage = String.format("%s rolled %d and got #b%db#", clientName, diceSides, result);
         } else {
             int total = 0;
             for (int i = 0; i < diceCount; i++) {
                 int roll = random.nextInt(diceSides) + 1;
                 total += roll;
             }
-            resultMessage = String.format("%s rolled %dd%d and got %d", clientName, diceCount, diceSides, total);
+            resultMessage = String.format("%s rolled %dd%d and got #b%db#", clientName, diceCount, diceSides, total);
         }
-        broadcastMessage(sender, resultMessage); 
+        broadcastMessage(sender, formatText(resultMessage)); 
     } else {
         sender.sendMessage("Invalid roll command parameters.");
     }
@@ -308,10 +308,10 @@ private String formatText(String message) {
 
    public void handleFlip(ServerThread sender) {
     String clientName = sender.getClientName();
-    String result = random.nextBoolean() ? "heads" : "tails";
+    String result = random.nextBoolean() ? "#gheadsg#" : "#gtailsg#";
     String resultMessage = String.format("%s flipped a coin and got %s", clientName, result);
 
-    broadcastMessage(sender, resultMessage); 
+    broadcastMessage(sender, formatText(resultMessage)); 
 }
     
 
