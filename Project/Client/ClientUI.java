@@ -55,7 +55,7 @@ public class ClientUI extends JFrame implements IConnectionEvents, IMessageEvent
      * 
      * @param title The title of the window.
      */
-    public ClientUI(String title) {
+    public ClientUI(String title) { 
         super(title); // Call the parent's constructor to set the frame title
         originalTitle = title;
         container = getContentPane();
@@ -93,6 +93,8 @@ public class ClientUI extends JFrame implements IConnectionEvents, IMessageEvent
         cardContainer.add(userDetailsPanel, CardView.USER_INFO.name()); // Add the User Details Panel
        
         chatPanel = new ChatPanel(this);
+        cardContainer.add(chatPanel, CardView.CHAT.name());
+
         roomsPanel = new RoomsPanel(this);
 
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);

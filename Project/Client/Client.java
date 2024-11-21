@@ -166,7 +166,6 @@ public enum Client {
         Matcher localhostMatcher = localhostPattern.matcher(text);
         return ipMatcher.matches() || localhostMatcher.matches();
     }
-
     /**
      * Controller for handling various text commands.
      * <p>
@@ -306,7 +305,7 @@ public enum Client {
 
 
     public void sendConnect() throws IOException {
-        ConnectionPayload p = new ConnectionPayload();
+        ConnectionPayload p = new ConnectionPayload(); //tried changing to Payload
         p.setPayloadType(PayloadType.CONNECT);
         p.setClientName(myData.getClientName());
         p.setConnect(true);
@@ -628,6 +627,7 @@ public enum Client {
         if (myData.getClientId() == ClientData.DEFAULT_CLIENT_ID) {
             myData.setClientId(clientId);
             myData.setClientName(clientName);
+            ((IConnectionEvents) events).onReceiveClientId(clientId);
             // knownClients.put(cp.getClientId(), myData);// <-- this is handled later
         }
     }
