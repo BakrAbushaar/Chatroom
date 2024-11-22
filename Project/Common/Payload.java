@@ -8,7 +8,7 @@ public class Payload implements Serializable {
     private PayloadType payloadType;
     private long clientId;
     private String message;
-
+    private long targetClientId;
     
 
     public PayloadType getPayloadType() {
@@ -39,8 +39,14 @@ public class Payload implements Serializable {
         return message;
     }
 
+    public long getTargetClientId() {
+        return targetClientId;
+    }
 
-
+    public void setTargetClientId(long targetClientId) {
+        this.targetClientId = targetClientId;
+        
+    }
     public void setMessage(String message) {
         this.message = message;
     }

@@ -6,6 +6,7 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
@@ -256,10 +257,41 @@ public enum Client {
                 
                 }
                 return wasCommand;
-            }
-        }
-        return false;
-    }
+                    } else if (text.startsWith("@")) {
+                    // Handle @username private message
+                    String[] parts = text.split(" ", 2);
+                    if (parts.length < 2) {
+                        System.out.println(TextFX.colorize("Invalid private message format. Use @username <message>", Color.RED));
+                        return true; // Command handled but invalid
+                    }
+
+                    String targetUsername = parts[0].substring(1); // Remove '@'
+                    String privateMessage = parts[1];
+
+                    // Find the target client ID
+                    Long targetClientId = knownClients.entrySet().stream()
+                            .filter(entry -> entry.getValue().getClientName().equalsIgnoreCase(targetUsername)) // Call getClientName()
+                            .map(Map.Entry::getKey)
+                            .findFirst()
+                            .orElse(null);
+
+                    if (targetClientId == null) {
+                        System.out.println(TextFX.colorize("User not found: " + targetUsername, Color.RED));
+                        return true; // Command handled but user not found
+                    }
+
+                    // Send private message payload
+                    Payload p = new Payload();
+                    p.setPayloadType(PayloadType.PRIVATE_MESSAGE);
+                    p.setTargetClientId(targetClientId);
+                    p.setMessage(privateMessage);
+                    send(p);
+
+                            return true; 
+                        }
+                    }
+                    return false;
+                }
 
     // send methods to pass data to the ServerThread
     public long getMyClientId() {

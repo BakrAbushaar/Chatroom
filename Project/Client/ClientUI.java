@@ -206,10 +206,14 @@ public class ClientUI extends JFrame implements IConnectionEvents, IMessageEvent
     public void onMessageReceive(long clientId, String message) {
         if (currentCard.ordinal() >= CardView.CHAT.ordinal()) {
             String clientName = Client.INSTANCE.getClientNameFromId(clientId);
-            chatPanel.addText(String.format("%s[%s]: %s", clientName, clientId, message));
+            if (message.startsWith("[PRIVATE]")) {
+                chatPanel.addText(String.format("[PRIVATE] %s[%s]: %s", clientName, clientId, message.substring(9)));
+            } else {
+                chatPanel.addText(String.format("%s[%s]: %s", clientName, clientId, message));
+            
         }
     }
-
+}
     @Override
     public void onReceiveClientId(long id) {
         System.out.println("ClientUI: Received client ID = " + id);

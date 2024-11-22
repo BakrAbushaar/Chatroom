@@ -221,7 +221,34 @@ public class Room implements AutoCloseable{
             return failedToSend;
         });
     }
+    
+    
+    
+    protected synchronized void sendPrivateMessage(ServerThread sender, long targetClientId, String message) {
+        if (!isRunning) { 
+            return;
+        }
+    
+        ServerThread target = clientsInRoom.get(targetClientId);
+    
+        if (target != null) {
+            String formattedMessageToSender = String.format("[PRIVATE] To %s: %s", target.getClientName(), message);
+            String formattedMessageToReceiver = String.format("[PRIVATE] From %s: %s", sender.getClientName(), message);
+    
+            sender.sendMessage(formattedMessageToSender);
+            target.sendMessage(formattedMessageToReceiver);
+    
+            info(String.format("Private message from %s to %s: %s", sender.getClientName(), target.getClientName(), message));
+        } else {
+            sender.sendMessage(String.format("User with ID %d not found.", targetClientId));
+        }
+    }
+    
     // end send data to client(s)
+
+
+
+
 
     // receive data from ServerThread
     //bna24

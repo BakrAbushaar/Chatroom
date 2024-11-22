@@ -128,6 +128,14 @@ public class ServerThread extends BaseServerThread {
                 case FLIP:
                 currentRoom.handleFlip(this);
                 break;
+
+                case PRIVATE_MESSAGE:
+                long targetClientId = payload.getTargetClientId();
+                String privateMessage = payload.getMessage();
+            
+                // Pass the private message to the current Room for further handling
+                currentRoom.sendPrivateMessage(this, targetClientId, privateMessage);
+                break;
                 default:
                     break;
             }
@@ -148,6 +156,20 @@ public class ServerThread extends BaseServerThread {
         return send(cp);
     }
 
+
+    public boolean sendPrivateMessage(long senderId, long recipientId, String message) {
+        
+        Payload privateMessagePayload = new Payload();
+        privateMessagePayload.setPayloadType(PayloadType.PRIVATE_MESSAGE); 
+        privateMessagePayload.setClientId(senderId);                       
+        privateMessagePayload.setTargetClientId(recipientId);             
+        privateMessagePayload.setMessage(message);                         
+    
+        return send(privateMessagePayload);
+    }
+
+
+    
     /**
      * Overload of sendMessage used for server-side generated messages
      * 
