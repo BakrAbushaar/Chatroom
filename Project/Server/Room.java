@@ -198,21 +198,19 @@ public class Room implements AutoCloseable{
      *                server-generated message
      */
     protected synchronized void sendMessage(ServerThread sender, String message) {
-        if (!isRunning) { // block action if Room isn't running
+        if (!isRunning) {
             return;
         }
+    
         String formattedMessage = formatText(message);
-        
-
-        // Note: any desired changes to the message must be done before this section
         long senderId = sender == null ? ServerThread.DEFAULT_CLIENT_ID : sender.getClientId();
-
-        // loop over clients and send out the message; remove client if message failed
-        // to be sent
-        // Note: this uses a lambda expression for each item in the values() collection,
-        // it's one way we can safely remove items during iteration
-        info(String.format("sending message to %s recipients: %s", getName(), clientsInRoom.size(), formattedMessage));
+    
         clientsInRoom.values().removeIf(client -> {
+            if (sender != null && client.isMuted(sender.getClientName())) {
+                info(String.format("Message from %s to %s skipped (muted).", sender.getClientName(), client.getClientName()));
+                return false; // Skip but don't remove the client
+            }
+    
             boolean failedToSend = !client.sendMessage(senderId, formattedMessage);
             if (failedToSend) {
                 info(String.format("Removing disconnected client[%s] from list", client.getClientId()));
@@ -224,14 +222,21 @@ public class Room implements AutoCloseable{
     
     
     
+    
     protected synchronized void sendPrivateMessage(ServerThread sender, long targetClientId, String message) {
-        if (!isRunning) { 
+        if (!isRunning) {
             return;
         }
     
         ServerThread target = clientsInRoom.get(targetClientId);
     
         if (target != null) {
+            if (target.isMuted(sender.getClientName())) {
+                info(String.format("Private message from %s to %s skipped (muted).", sender.getClientName(), target.getClientName()));
+                sender.sendMessage(String.format("Your private message to %s was not delivered (you are muted).", target.getClientName()));
+                return;
+            }
+    
             String formattedMessageToSender = String.format("[PRIVATE] To %s: %s", target.getClientName(), message);
             String formattedMessageToReceiver = String.format("[PRIVATE] From %s: %s", sender.getClientName(), message);
     
@@ -243,6 +248,7 @@ public class Room implements AutoCloseable{
             sender.sendMessage(String.format("User with ID %d not found.", targetClientId));
         }
     }
+    
     
     // end send data to client(s)
 
@@ -278,6 +284,30 @@ public class Room implements AutoCloseable{
         addClient(client); 
         System.out.println("Client connected to room: " + getName());
     }
+
+
+    protected synchronized void handleMute(ServerThread sender, long targetClientId) {
+        ServerThread target = clientsInRoom.get(targetClientId);
+        if (target != null) {
+            sender.addToMuteList(target.getClientName());
+            info(String.format("%s muted %s", sender.getClientName(), target.getClientName()));
+            sender.sendMessage(String.format("You have muted %s", target.getClientName()));
+        } else {
+            sender.sendMessage(String.format("Client with ID %d not found to mute.", targetClientId));
+        }
+    }
+
+    protected synchronized void handleUnmute(ServerThread sender, long targetClientId) {
+        ServerThread target = clientsInRoom.get(targetClientId);
+        if (target != null) {
+            sender.removeFromMuteList(target.getClientName());
+            info(String.format("%s unmuted %s", sender.getClientName(), target.getClientName()));
+            sender.sendMessage(String.format("You have unmuted %s", target.getClientName()));
+        } else {
+            sender.sendMessage(String.format("Client with ID %d not found to unmute.", targetClientId));
+        }
+    }
+
 
 
 

@@ -198,6 +198,9 @@ public enum Client {
                     String.join("\n", knownClients.values().stream()
                             .map(c -> String.format("%s(%s)", c.getClientName(), c.getClientId())).toList()));
             return true;
+        } else if (text.startsWith("/mute ") || text.startsWith("/unmute ")) {
+            handleMuteUnmuteCommand(text);
+            return true;
         } else { // logic previously from Room.java
             // decided to make this as separate block to separate the core client-side items
             // vs the ones that generally are used after connection and that send requests
@@ -262,22 +265,22 @@ public enum Client {
                     String[] parts = text.split(" ", 2);
                     if (parts.length < 2) {
                         System.out.println(TextFX.colorize("Invalid private message format. Use @username <message>", Color.RED));
-                        return true; // Command handled but invalid
+                        return true; 
                     }
 
-                    String targetUsername = parts[0].substring(1); // Remove '@'
+                    String targetUsername = parts[0].substring(1); 
                     String privateMessage = parts[1];
 
-                    // Find the target client ID
+                    
                     Long targetClientId = knownClients.entrySet().stream()
-                            .filter(entry -> entry.getValue().getClientName().equalsIgnoreCase(targetUsername)) // Call getClientName()
+                            .filter(entry -> entry.getValue().getClientName().equalsIgnoreCase(targetUsername)) 
                             .map(Map.Entry::getKey)
                             .findFirst()
                             .orElse(null);
 
                     if (targetClientId == null) {
                         System.out.println(TextFX.colorize("User not found: " + targetUsername, Color.RED));
-                        return true; // Command handled but user not found
+                        return true; 
                     }
 
                     // Send private message payload
@@ -304,6 +307,36 @@ public enum Client {
         p.setMessage(roomQuery);
         send(p);
     }
+
+
+
+    private void handleMuteUnmuteCommand(String text) throws IOException {
+        String[] parts = text.split(" ", 2);
+        if (parts.length < 2) {
+            System.out.println(TextFX.colorize("Invalid format. Use /mute <username> or /unmute <username>", Color.RED));
+            return;
+        }
+    
+        String targetUsername = parts[1];
+        boolean isMute = text.startsWith("/mute");
+    
+        Long targetClientId = knownClients.entrySet().stream()
+                .filter(entry -> entry.getValue().getClientName().equalsIgnoreCase(targetUsername))
+                .map(Map.Entry::getKey)
+                .findFirst()
+                .orElse(null);
+    
+        if (targetClientId == null) {
+            System.out.println(TextFX.colorize("User not found: " + targetUsername, Color.RED));
+            return;
+        }
+    
+        Payload p = new Payload();
+        p.setPayloadType(isMute ? PayloadType.MUTE : PayloadType.UNMUTE);
+        p.setTargetClientId(targetClientId);
+        send(p);
+    }
+    
 
 
 

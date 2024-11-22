@@ -10,7 +10,8 @@ import Project.Common.Payload;
 import Project.Common.PayloadType;
 import Project.Common.RollPayload;
 import Project.Client.CardView;
-
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * A server-side representation of a single client.
@@ -68,6 +69,21 @@ public class ServerThread extends BaseServerThread {
         currentRoom = room;
     }
 
+    // Mute and Unmute
+    private Set<String> mutedUsers = new HashSet<>();
+    public boolean isMuted(String username) {
+        return mutedUsers.contains(username);
+    }
+
+    public void addToMuteList(String username) {
+        mutedUsers.add(username);
+    }
+
+    public void removeFromMuteList(String username) {
+        mutedUsers.remove(username);
+    }
+
+
     @Override
     protected void onInitialized() {
         System.out.println("ServerThread.onInitialized called");
@@ -120,22 +136,28 @@ public class ServerThread extends BaseServerThread {
                 // bna24
                 //november 11,2024
                 case ROLL:
-                RollPayload rollPayload = (RollPayload) payload;
-                currentRoom.handleRoll(this, rollPayload.getDiceCount(), rollPayload.getDiceSides());
-                break;
+                    RollPayload rollPayload = (RollPayload) payload;
+                    currentRoom.handleRoll(this, rollPayload.getDiceCount(), rollPayload.getDiceSides());
+                    break;
                 // bna24
                 // November 11, 2024
                 case FLIP:
-                currentRoom.handleFlip(this);
-                break;
+                    currentRoom.handleFlip(this);
+                    break;
 
                 case PRIVATE_MESSAGE:
-                long targetClientId = payload.getTargetClientId();
-                String privateMessage = payload.getMessage();
-            
-                // Pass the private message to the current Room for further handling
-                currentRoom.sendPrivateMessage(this, targetClientId, privateMessage);
-                break;
+                    long targetClientId = payload.getTargetClientId();
+                    String privateMessage = payload.getMessage();
+                    currentRoom.sendPrivateMessage(this, targetClientId, privateMessage);
+                    break;
+
+                case MUTE:
+                    currentRoom.handleMute(this, payload.getTargetClientId());
+                    break;
+    
+                case UNMUTE:
+                    currentRoom.handleUnmute(this, payload.getTargetClientId());
+                    break;
                 default:
                     break;
             }
