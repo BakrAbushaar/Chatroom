@@ -172,6 +172,8 @@ public enum Client {
      * 
      * @param text
      * @return true if the text was a command or triggered a command
+     * bna24
+     * november 27, 2024
      */
      private boolean processClientCommand(String text) throws IOException {
         if (isConnection(text)) {
@@ -200,6 +202,9 @@ public enum Client {
             return true;
         } else if (text.startsWith("/mute ") || text.startsWith("/unmute ")) {
             handleMuteUnmuteCommand(text);
+            return true;
+        }  else if (text.startsWith("@")) {
+            handlePrivateMessageCommand(text);
             return true;
         } else { // logic previously from Room.java
             // decided to make this as separate block to separate the core client-side items
@@ -260,6 +265,7 @@ public enum Client {
                 
                 }
                 return wasCommand;
+                /*
                     } else if (text.startsWith("@")) {
                     // Handle @username private message
                     String[] parts = text.split(" ", 2);
@@ -290,7 +296,7 @@ public enum Client {
                     p.setMessage(privateMessage);
                     send(p);
 
-                            return true; 
+                            return true;  */
                         }
                     }
                     return false;
@@ -306,6 +312,37 @@ public enum Client {
         p.setPayloadType(PayloadType.ROOM_LIST);
         p.setMessage(roomQuery);
         send(p);
+    }
+
+
+//bna24
+//novmeber 27, 2024
+    private void handlePrivateMessageCommand(String text) {
+        String[] parts = text.split(" ", 2);
+        if (parts.length < 2) {
+            System.out.println(TextFX.colorize("Invalid private message format. Use @username <message>", Color.RED));
+            return;
+        }
+    
+        String targetUsername = parts[0].substring(1); // Remove '@'
+        String privateMessage = parts[1];
+    
+        Long targetClientId = knownClients.entrySet().stream()
+                .filter(entry -> entry.getValue().getClientName().equalsIgnoreCase(targetUsername))
+                .map(Map.Entry::getKey)
+                .findFirst()
+                .orElse(null);
+    
+        if (targetClientId == null) {
+            System.out.println(TextFX.colorize("User not found: " + targetUsername, Color.RED));
+            return;
+        }
+    
+        Payload payload = new Payload();
+        payload.setPayloadType(PayloadType.PRIVATE_MESSAGE);
+        payload.setTargetClientId(targetClientId);
+        payload.setMessage(privateMessage);
+        send(payload);
     }
 
 
