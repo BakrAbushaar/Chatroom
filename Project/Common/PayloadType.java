@@ -17,4 +17,7 @@ public enum PayloadType {
 
     MESSAGE, // sender and message
     CONNECT,
+    PRIVATE_MESSAGE,
+    MUTE,
+    UNMUTE,
 }

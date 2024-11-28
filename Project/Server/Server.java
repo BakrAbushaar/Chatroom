@@ -78,6 +78,7 @@ public enum Server {
      * @param sClient
      */
     private void onClientInitialized(ServerThread sClient) {
+        System.out.println("Server.onClientInitialized---Sending CLIENT_ID payload to client: " + nextClientId);
         sClient.sendClientId(nextClientId);
         nextClientId++;
         if(nextClientId < 0){

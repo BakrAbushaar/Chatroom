@@ -6,6 +6,7 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
@@ -35,8 +36,6 @@ import Project.Common.LoggerUtil;
  
 public enum Client {
     INSTANCE;
-
-
 
 {
         // TODO moved to ClientUI (this repeat doesn't do anything since config is set
@@ -109,7 +108,6 @@ public enum Client {
             // channel to listen to server
             in = new ObjectInputStream(server.getInputStream());
             LoggerUtil.INSTANCE.info("Client connected");
-            sendConnect();
             // Use CompletableFuture to run listenToServer() in a separate thread
             CompletableFuture.runAsync(this::listenToServer);
         } catch (UnknownHostException e) {
@@ -127,6 +125,7 @@ public enum Client {
     public boolean connect(String address, int port, String username, IClientEvents callback) {
         myData.setClientName(username);
         Client.events = callback;
+        System.out.println("Client events set to: " + callback.getClass().getName());
         try {
             server = new Socket(address, port);
             // channel to send to server
@@ -134,7 +133,7 @@ public enum Client {
             // channel to listen to server
             in = new ObjectInputStream(server.getInputStream());
             LoggerUtil.INSTANCE.info("Client connected");
-            sendConnect();
+            sendClientName();
             // Use CompletableFuture to run listenToServer() in a separate thread
             CompletableFuture.runAsync(this::listenToServer);
         } catch (UnknownHostException e) {
@@ -173,6 +172,8 @@ public enum Client {
      * 
      * @param text
      * @return true if the text was a command or triggered a command
+     * bna24
+     * november 27, 2024
      */
      private boolean processClientCommand(String text) throws IOException {
         if (isConnection(text)) {
@@ -199,6 +200,12 @@ public enum Client {
                     String.join("\n", knownClients.values().stream()
                             .map(c -> String.format("%s(%s)", c.getClientName(), c.getClientId())).toList()));
             return true;
+        } else if (text.startsWith("/mute ") || text.startsWith("/unmute ")) {
+            handleMuteUnmuteCommand(text);
+            return true;
+        }  else if (text.startsWith("@")) {
+            handlePrivateMessageCommand(text);
+            return true;
         } else { // logic previously from Room.java
             // decided to make this as separate block to separate the core client-side items
             // vs the ones that generally are used after connection and that send requests
@@ -221,7 +228,6 @@ public enum Client {
                         break;
                     // Note: these are to disconnect, they're not for changing rooms
                     case DISCONNECT:
-                    
                     case LOGOFF:
                     case LOGOUT:
                         sendDisconnect();
@@ -255,13 +261,46 @@ public enum Client {
                         sendFlipCommand();  
                         wasCommand = true;
                         break;
+                        
                 
                 }
                 return wasCommand;
-            }
-        }
-        return false;
-    }
+                /*
+                    } else if (text.startsWith("@")) {
+                    // Handle @username private message
+                    String[] parts = text.split(" ", 2);
+                    if (parts.length < 2) {
+                        System.out.println(TextFX.colorize("Invalid private message format. Use @username <message>", Color.RED));
+                        return true; 
+                    }
+
+                    String targetUsername = parts[0].substring(1); 
+                    String privateMessage = parts[1];
+
+                    
+                    Long targetClientId = knownClients.entrySet().stream()
+                            .filter(entry -> entry.getValue().getClientName().equalsIgnoreCase(targetUsername)) 
+                            .map(Map.Entry::getKey)
+                            .findFirst()
+                            .orElse(null);
+
+                    if (targetClientId == null) {
+                        System.out.println(TextFX.colorize("User not found: " + targetUsername, Color.RED));
+                        return true; 
+                    }
+
+                    // Send private message payload
+                    Payload p = new Payload();
+                    p.setPayloadType(PayloadType.PRIVATE_MESSAGE);
+                    p.setTargetClientId(targetClientId);
+                    p.setMessage(privateMessage);
+                    send(p);
+
+                            return true;  */
+                        }
+                    }
+                    return false;
+                }
 
     // send methods to pass data to the ServerThread
     public long getMyClientId() {
@@ -274,6 +313,67 @@ public enum Client {
         p.setMessage(roomQuery);
         send(p);
     }
+
+
+//bna24
+//novmeber 27, 2024
+    private void handlePrivateMessageCommand(String text) {
+        String[] parts = text.split(" ", 2);
+        if (parts.length < 2) {
+            System.out.println(TextFX.colorize("Invalid private message format. Use @username <message>", Color.RED));
+            return;
+        }
+    
+        String targetUsername = parts[0].substring(1); // Remove '@'
+        String privateMessage = parts[1];
+    
+        Long targetClientId = knownClients.entrySet().stream()
+                .filter(entry -> entry.getValue().getClientName().equalsIgnoreCase(targetUsername))
+                .map(Map.Entry::getKey)
+                .findFirst()
+                .orElse(null);
+    
+        if (targetClientId == null) {
+            System.out.println(TextFX.colorize("User not found: " + targetUsername, Color.RED));
+            return;
+        }
+    
+        Payload payload = new Payload();
+        payload.setPayloadType(PayloadType.PRIVATE_MESSAGE);
+        payload.setTargetClientId(targetClientId);
+        payload.setMessage(privateMessage);
+        send(payload);
+    }
+
+
+
+    private void handleMuteUnmuteCommand(String text) throws IOException {
+        String[] parts = text.split(" ", 2);
+        if (parts.length < 2) {
+            System.out.println(TextFX.colorize("Invalid format. Use /mute <username> or /unmute <username>", Color.RED));
+            return;
+        }
+    
+        String targetUsername = parts[1];
+        boolean isMute = text.startsWith("/mute");
+    
+        Long targetClientId = knownClients.entrySet().stream()
+                .filter(entry -> entry.getValue().getClientName().equalsIgnoreCase(targetUsername))
+                .map(Map.Entry::getKey)
+                .findFirst()
+                .orElse(null);
+    
+        if (targetClientId == null) {
+            System.out.println(TextFX.colorize("User not found: " + targetUsername, Color.RED));
+            return;
+        }
+    
+        Payload p = new Payload();
+        p.setPayloadType(isMute ? PayloadType.MUTE : PayloadType.UNMUTE);
+        p.setTargetClientId(targetClientId);
+        send(p);
+    }
+    
 
 
 
@@ -307,7 +407,8 @@ public enum Client {
         ConnectionPayload p = new ConnectionPayload(); //tried changing to Payload
         p.setPayloadType(PayloadType.CONNECT);
         p.setClientName(myData.getClientName());
-        p.isConnect();
+        p.setConnect(true);
+        System.out.println("client.sendConnect()  Connection payload.CONNECT sent with name: " + myData.getClientName());
         send(p);
     }
         
@@ -399,7 +500,8 @@ public enum Client {
             while (isRunning && isConnected()) {
                 Payload fromServer = (Payload) in.readObject(); // blocking read
                 if (fromServer != null) {
-                    // System.out.println(fromServer);
+                System.out.println("Client received payload: " + fromServer.getPayloadType());
+
                     processPayload(fromServer);
                 } else {
                     System.out.println("Server disconnected");
@@ -504,11 +606,15 @@ public enum Client {
      */
     private void processPayload(Payload payload) {
         try {
-            System.out.println("Received Payload: " + payload);
             switch (payload.getPayloadType()) {
                 case PayloadType.CLIENT_ID: // get id assigned
+                System.out.println("CLIENT_ID payload received --- ProcessPayload");
                     ConnectionPayload cp = (ConnectionPayload) payload;
                     processClientData(cp.getClientId(), cp.getClientName());
+                        if (Client.events != null && Client.events instanceof IConnectionEvents) {
+                            ((IConnectionEvents) Client.events).onReceiveClientId(cp.getClientId());
+                            System.out.println("onReceiveClientId called with ID: " + cp.getClientId());
+                    }
                     break;
                 case PayloadType.SYNC_CLIENT: // silent add
                     cp = (ConnectionPayload) payload;
