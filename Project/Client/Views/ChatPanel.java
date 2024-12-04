@@ -14,6 +14,9 @@ import java.awt.event.ContainerListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -37,6 +40,8 @@ import Project.Common.LoggerUtil;
 /**
  * ChatPanel represents the main chat interface where messages can be sent and
  * received.
+ * bna24
+ * november 24, 2024
  */
 public class ChatPanel extends JPanel {
     private JPanel chatArea = null;
@@ -114,6 +119,13 @@ public class ChatPanel extends JPanel {
             public void keyReleased(KeyEvent e) {
             }
         });
+
+        //Milestone4
+        JButton exportButton = new JButton("Export Chat");
+        exportButton.addActionListener(event -> exportChatHistory());
+        input.add(exportButton);
+
+
 
         button.addActionListener((event) -> {
             SwingUtilities.invokeLater(() -> {
@@ -194,10 +206,34 @@ public class ChatPanel extends JPanel {
         SwingUtilities.invokeLater(() -> userListPanel.clearUserList());
     }
 
+    //milestone4
+    private void exportChatHistory() {
+    try {
+        StringBuilder sb = new StringBuilder();
+        for (Component component : chatArea.getComponents()) {
+            if (component instanceof JEditorPane) {
+                JEditorPane textPane = (JEditorPane) component;
+                sb.append(textPane.getText()).append("\n");
+            }
+        }
+        String fileName = "chat_history_" + System.currentTimeMillis() + ".txt";
+        Path filePath = Paths.get(fileName);
+        Files.write(filePath, sb.toString().getBytes());
+        System.out.println("Chat history exported to: " + filePath.toAbsolutePath());
+    } catch (IOException e) {
+        System.err.println("Failed to export chat history: " + e.getMessage());
+    }
+}
+
+
+
+
     /**
      * Adds a message to the chat area.
      * 
      * @param text The text of the message.
+     * bna24
+     * november 27, 2024
      */
     public void addText(String text) {
         SwingUtilities.invokeLater(() -> {

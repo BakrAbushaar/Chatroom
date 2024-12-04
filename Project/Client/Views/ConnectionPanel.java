@@ -27,6 +27,8 @@ public class ConnectionPanel extends JPanel {
      * Constructs a ConnectionPanel with the specified controls.
      * 
      * @param controls the ICardControls to handle card navigation.
+     * bna24
+     * Novemebr 24, 2024
      */
     public ConnectionPanel(ICardControls controls) {
         super(new BorderLayout(10, 10)); // Set BorderLayout with gaps
@@ -57,6 +59,8 @@ public class ConnectionPanel extends JPanel {
         System.out.println("Host: " + host + ", Port: " + port);
 
         // Add Next button
+        //bna24
+        //november 24, 2024
         JButton button = new JButton("Next");
         button.setAlignmentX(JButton.CENTER_ALIGNMENT); // Center the button
         button.addActionListener((event) -> {

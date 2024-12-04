@@ -1,6 +1,11 @@
 package Project.Server;
 
+//import java.awt.List;
+import java.io.IOException;
 import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Objects;
 import java.util.function.Consumer;
 
@@ -12,6 +17,8 @@ import Project.Common.RollPayload;
 import Project.Client.CardView;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.List;
+
 
 /**
  * A server-side representation of a single client.
@@ -69,19 +76,33 @@ public class ServerThread extends BaseServerThread {
         currentRoom = room;
     }
 
-    // Mute and Unmute
+    // Mute and Unmute (saveMuteList() milestone4)
     private Set<String> mutedUsers = new HashSet<>();
     public boolean isMuted(String username) {
         return mutedUsers.contains(username);
     }
 
-    public void addToMuteList(String username) {
-        mutedUsers.add(username);
+    //milestone4
+    public boolean addToMuteList(String username) {
+        if (mutedUsers.add(username)) { 
+            info("Client " + clientName + " muted " + username); 
+            return true; 
+        } else {
+            info("Mute request ignored. " + username + " is already muted."); 
+            return false; 
+        }
     }
-
-    public void removeFromMuteList(String username) {
-        mutedUsers.remove(username);
+    
+    public boolean removeFromMuteList(String username) {
+        if (mutedUsers.remove(username)) { 
+            info("Client " + clientName + " unmuted " + username); 
+            return true; 
+        } else {
+            info("Unmute request ignored. " + username + " is not muted."); 
+            return false;
+        }
     }
+    
 
 
     @Override
@@ -109,15 +130,15 @@ public class ServerThread extends BaseServerThread {
     // handle received message from the Client
     @Override
     //bna24
-    //10/20/2024
+    //November 27 2024
     protected void processPayload(Payload payload) {
         try {
             switch (payload.getPayloadType()) {
                 case CLIENT_CONNECT:
                     ConnectionPayload connectionPayload = (ConnectionPayload) payload;
                     setClientName(connectionPayload.getClientName());
+                    loadMuteList();
                     System.out.println("Client connected with name: " + connectionPayload.getClientName());
-
                     sendClientId(this.clientId);
                 break;
                 case MESSAGE:
@@ -166,6 +187,35 @@ public class ServerThread extends BaseServerThread {
             e.printStackTrace();
         }
     }
+
+    //Milestone4
+    private void loadMuteList() {
+        try {
+            String filename = clientName + "_mute_list.txt";
+            Path filePath = Paths.get(filename);
+            if (Files.exists(filePath)) {
+                java.util.List<String> loadedMuteList = Files.readAllLines(filePath);
+                mutedUsers.addAll(loadedMuteList);
+                info("Loaded mute list for " + clientName + ": " + loadedMuteList);
+            } else {
+                info("No mute list found for " + clientName + ", starting fresh.");
+            }
+        } catch (IOException e) {
+            System.err.println("Error loading mute list for " + clientName + ": " + e.getMessage());
+        }
+    }
+    
+    private void saveMuteList() {
+        try {
+            String filename = clientName + "_mute_list.txt";
+            Path filePath = Paths.get(filename);
+            Files.write(filePath, new java.util.ArrayList<>(mutedUsers)); 
+            info("Saved mute list for " + clientName);
+        } catch (IOException e) {
+            System.err.println("Error saving mute list for " + clientName + ": " + e.getMessage());
+        }
+    }
+
 
     // send methods to pass data back to the Client
 
