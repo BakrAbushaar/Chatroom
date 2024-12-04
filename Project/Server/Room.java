@@ -338,10 +338,9 @@ private String formatText(String message) {
     message = message.replaceAll(boldPattern, "<b>$1</b>");
     message = message.replaceAll(italicPattern, "<i>$1</i>");
     message = message.replaceAll(underlinePattern, "<u>$1</u>");
-    message = message.replaceAll(redPattern, "<red>$1</red>");
-    message = message.replaceAll(greenPattern, "<green>$1</green>");
-    message = message.replaceAll(bluePattern, "<blue>$1</blue>");
-
+    message = message.replaceAll(redPattern, "<span style=\"color:red;\">$1</span>");
+    message = message.replaceAll(greenPattern, "<span style=\"color:green;\">$1</span>");
+    message = message.replaceAll(bluePattern, "<span style=\"color:blue;\">$1</span>");
     return message;
 }
 
