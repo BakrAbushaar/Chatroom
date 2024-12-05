@@ -196,6 +196,8 @@ public class Room implements AutoCloseable{
      * @param message
      * @param sender  ServerThread (client) sending the message or null if it's a
      *                server-generated message
+     * bna24
+     * November 27, 2024
      */
     protected synchronized void sendMessage(ServerThread sender, String message) {
         if (!isRunning) {
@@ -222,7 +224,8 @@ public class Room implements AutoCloseable{
     
     
     
-    
+    //bna24
+    //November 27, 2024
     protected synchronized void sendPrivateMessage(ServerThread sender, long targetClientId, String message) {
         if (!isRunning) {
             return;
@@ -285,13 +288,18 @@ public class Room implements AutoCloseable{
         System.out.println("Client connected to room: " + getName());
     }
 
-
+    //bna24
+    //november 27, 2024 (milestone4)
     protected synchronized void handleMute(ServerThread sender, long targetClientId) {
         ServerThread target = clientsInRoom.get(targetClientId);
         if (target != null) {
-            sender.addToMuteList(target.getClientName());
-            info(String.format("%s muted %s", sender.getClientName(), target.getClientName()));
-            sender.sendMessage(String.format("You have muted %s", target.getClientName()));
+            if (sender.addToMuteList(target.getClientName())) { 
+                info(String.format("%s muted %s", sender.getClientName(), target.getClientName()));
+                sender.sendMessage(String.format("You have muted %s", target.getClientName()));
+                target.sendMessage(String.format("%s has muted you.", sender.getClientName()));
+            } else {
+                sender.sendMessage(String.format("%s is already muted.", target.getClientName()));
+            }
         } else {
             sender.sendMessage(String.format("Client with ID %d not found to mute.", targetClientId));
         }
@@ -300,9 +308,13 @@ public class Room implements AutoCloseable{
     protected synchronized void handleUnmute(ServerThread sender, long targetClientId) {
         ServerThread target = clientsInRoom.get(targetClientId);
         if (target != null) {
-            sender.removeFromMuteList(target.getClientName());
-            info(String.format("%s unmuted %s", sender.getClientName(), target.getClientName()));
-            sender.sendMessage(String.format("You have unmuted %s", target.getClientName()));
+            if (sender.removeFromMuteList(target.getClientName())) { 
+                info(String.format("%s unmuted %s", sender.getClientName(), target.getClientName()));
+                sender.sendMessage(String.format("You have unmuted %s", target.getClientName()));
+                target.sendMessage(String.format("%s has unmuted you.", sender.getClientName()));
+            } else {
+                sender.sendMessage(String.format("%s is not currently muted.", target.getClientName()));
+            }
         } else {
             sender.sendMessage(String.format("Client with ID %d not found to unmute.", targetClientId));
         }
@@ -326,10 +338,9 @@ private String formatText(String message) {
     message = message.replaceAll(boldPattern, "<b>$1</b>");
     message = message.replaceAll(italicPattern, "<i>$1</i>");
     message = message.replaceAll(underlinePattern, "<u>$1</u>");
-    message = message.replaceAll(redPattern, "<red>$1</red>");
-    message = message.replaceAll(greenPattern, "<green>$1</green>");
-    message = message.replaceAll(bluePattern, "<blue>$1</blue>");
-
+    message = message.replaceAll(redPattern, "<span style=\"color:red;\">$1</span>");
+    message = message.replaceAll(greenPattern, "<span style=\"color:green;\">$1</span>");
+    message = message.replaceAll(bluePattern, "<span style=\"color:blue;\">$1</span>");
     return message;
 }
 

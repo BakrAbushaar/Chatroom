@@ -14,6 +14,9 @@ import java.awt.event.ContainerListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -25,6 +28,7 @@ import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextField;
+import javax.swing.JTextPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
@@ -37,6 +41,8 @@ import Project.Common.LoggerUtil;
 /**
  * ChatPanel represents the main chat interface where messages can be sent and
  * received.
+ * bna24
+ * november 24, 2024
  */
 public class ChatPanel extends JPanel {
     private JPanel chatArea = null;
@@ -114,6 +120,13 @@ public class ChatPanel extends JPanel {
             public void keyReleased(KeyEvent e) {
             }
         });
+
+        //Milestone4
+        JButton exportButton = new JButton("Export Chat");
+        exportButton.addActionListener(event -> exportChatHistory());
+        input.add(exportButton);
+
+
 
         button.addActionListener((event) -> {
             SwingUtilities.invokeLater(() -> {
@@ -194,48 +207,69 @@ public class ChatPanel extends JPanel {
         SwingUtilities.invokeLater(() -> userListPanel.clearUserList());
     }
 
+    //milestone4
+    private void exportChatHistory() {
+    try {
+        StringBuilder sb = new StringBuilder();
+        for (Component component : chatArea.getComponents()) {
+            if (component instanceof JEditorPane) {
+                JEditorPane textPane = (JEditorPane) component;
+                sb.append(textPane.getText()).append("\n");
+            }
+        }
+        String fileName = "chat_history_" + System.currentTimeMillis() + ".txt";
+        Path filePath = Paths.get(fileName);
+        Files.write(filePath, sb.toString().getBytes());
+        System.out.println("Chat history exported to: " + filePath.toAbsolutePath());
+    } catch (IOException e) {
+        System.err.println("Failed to export chat history: " + e.getMessage());
+    }
+}
+
+
+
+
     /**
      * Adds a message to the chat area.
      * 
      * @param text The text of the message.
+     * bna24
+     * november 27, 2024
      */
     public void addText(String text) {
         SwingUtilities.invokeLater(() -> {
-            JEditorPane textContainer = new JEditorPane("text/plain", text);
+            // Use a JTextPane for rendering HTML
+            JTextPane textContainer = new JTextPane();
+            textContainer.setContentType("text/html");
+            textContainer.setText(text); // Assuming the text is pre-formatted as HTML
             textContainer.setEditable(false);
             textContainer.setBorder(BorderFactory.createEmptyBorder());
-
-            // Account for the width of the vertical scrollbar
+    
+            // Adjust text container width
             JScrollPane parentScrollPane = (JScrollPane) SwingUtilities.getAncestorOfClass(JScrollPane.class, chatArea);
             int scrollBarWidth = parentScrollPane.getVerticalScrollBar().getPreferredSize().width;
-
-            // Adjust the width of the text container
-            int availableWidth = chatArea.getWidth() - scrollBarWidth - 10; // Subtract an additional padding
+            int availableWidth = chatArea.getWidth() - scrollBarWidth - 10; // Adjust for padding
             textContainer.setSize(new Dimension(availableWidth, Integer.MAX_VALUE));
             Dimension d = textContainer.getPreferredSize();
             textContainer.setPreferredSize(new Dimension(availableWidth, d.height));
-            // Remove background and border
-            textContainer.setOpaque(false);
-            textContainer.setBorder(BorderFactory.createEmptyBorder());
-            textContainer.setBackground(new Color(0, 0, 0, 0));
-
-            // GridBagConstraints settings for each message
+    
+            // Add the formatted message to the chat area
             GridBagConstraints gbc = new GridBagConstraints();
-            gbc.gridx = 0; // Column index 0
-            gbc.gridy = GridBagConstraints.RELATIVE; // Automatically move to the next row
-            gbc.weightx = 1; // Let the component grow horizontally to fill the space
-            gbc.fill = GridBagConstraints.HORIZONTAL; // Fill horizontally
-            gbc.insets = new Insets(0, 0, 5, 0); // Add spacing between messages
-
+            gbc.gridx = 0;
+            gbc.gridy = GridBagConstraints.RELATIVE;
+            gbc.weightx = 1;
+            gbc.fill = GridBagConstraints.HORIZONTAL;
+            gbc.insets = new Insets(0, 0, 5, 0);
+    
             chatArea.add(textContainer, gbc);
             chatArea.revalidate();
             chatArea.repaint();
-
-            // Scroll down on new message
+    
+            // Auto-scroll to the latest message
             SwingUtilities.invokeLater(() -> {
                 JScrollBar vertical = parentScrollPane.getVerticalScrollBar();
                 vertical.setValue(vertical.getMaximum());
             });
         });
-    }
-}
+    }}
+    

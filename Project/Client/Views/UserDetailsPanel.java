@@ -33,6 +33,8 @@ public class UserDetailsPanel extends JPanel {
         content.setBorder(new EmptyBorder(10, 10, 10, 10)); // Add padding
 
         // Add username input field
+        //bna24
+        //november 24, 2024
         JLabel userLabel = new JLabel("Username: ");
         JTextField userValue = new JTextField();
         JLabel userError = new JLabel();
@@ -44,6 +46,8 @@ public class UserDetailsPanel extends JPanel {
         content.add(Box.createRigidArea(new Dimension(0, 200))); // Add vertical space
 
         // Add Previous and Connect buttons
+        //bna24
+        //november 24, 2024
         JButton previousButton = new JButton("Previous");
         previousButton.addActionListener(event -> controls.previous());
         JButton connectButton = new JButton("Connect");
@@ -60,7 +64,8 @@ public class UserDetailsPanel extends JPanel {
     
             }
         });
-
+        //bna24
+        //november 24, 2024
         JPanel buttons = new JPanel();
         buttons.add(previousButton);
         buttons.add(connectButton);
@@ -81,7 +86,7 @@ public class UserDetailsPanel extends JPanel {
     /**
      * Gets the username entered by the user.
      * 
-     * @return The username.
+     
      */
     public String getUsername() {
         return username;

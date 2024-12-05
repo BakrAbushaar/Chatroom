@@ -1,6 +1,7 @@
 package Project.Client.Views;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -28,6 +29,7 @@ public class UserListPanel extends JPanel {
     private GridBagConstraints lastConstraints; // Keep track of the last constraints for the glue
     private HashMap<Long, UserListItem> userItemsMap; // Maintain a map of client IDs to UserListItems
 
+    
     /**
      * Constructor to create the UserListPanel UI.
      */
@@ -131,6 +133,7 @@ public class UserListPanel extends JPanel {
         });
     }
 
+
     /**
      * Adjusts the width of all user list items.
      */
@@ -174,4 +177,21 @@ public class UserListPanel extends JPanel {
             userListArea.repaint();
         });
     }
+
+    //4thimp (for mute/unmuted)
+    public void onMessageReceive(long clientId, String message) {
+        SwingUtilities.invokeLater(() -> {
+            // Reset the last sender status for all users
+            userItemsMap.values().forEach(item -> item.setLastSender(false));
+
+            // Highlight the sender as the last sender
+            if (userItemsMap.containsKey(clientId)) {
+                userItemsMap.get(clientId).setLastSender(true);
+            }
+
+            userListArea.revalidate();
+            userListArea.repaint();
+        });
+    }
+  
 }
