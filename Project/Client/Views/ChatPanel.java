@@ -227,6 +227,14 @@ public class ChatPanel extends JPanel {
 }
 
 
+    //4thimp callback
+    public void notifyUserListMessageReceived(long clientId, String message) {
+        userListPanel.onMessageReceive(clientId, message);
+    }
+        //4thimp new
+        public void setUserMutedStatus(long clientId, boolean isMuted) {
+            userListPanel.setUserMutedStatus(clientId, isMuted);
+        }
 
 
     /**

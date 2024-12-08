@@ -20,4 +20,5 @@ public enum PayloadType {
     PRIVATE_MESSAGE,
     MUTE,
     UNMUTE,
+    LAST_SENDER,
 }

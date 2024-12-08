@@ -30,6 +30,7 @@ public class UserListItem extends JPanel {
      * @param parent     The parent container to calculate available width.
      */
     public UserListItem(long clientId, String clientName, JPanel parent) {
+        this.setLayout(new BorderLayout());
         textContainer = new JEditorPane("text/plain", clientName);
         textContainer.setName(Long.toString(clientId));
         textContainer.setEditable(false);
@@ -42,15 +43,14 @@ public class UserListItem extends JPanel {
 
 
         //statusIndicator 4thimp
-        this.setLayout(new BorderLayout());
         statusIndicator.setPreferredSize(new Dimension(10, 10));
         statusIndicator.setMinimumSize(statusIndicator.getPreferredSize());
         statusIndicator.setMaximumSize(statusIndicator.getPreferredSize());
         this.add(statusIndicator, BorderLayout.WEST);
         
-        // Add statusIndicator to the layout
-        this.setLayout(new BorderLayout());
-        this.add(statusIndicator, BorderLayout.WEST);
+        
+        
+    
 
         // Configure textContainer
         JScrollPane parentScrollPane = (JScrollPane) SwingUtilities.getAncestorOfClass(JScrollPane.class, parent);
@@ -68,35 +68,39 @@ public class UserListItem extends JPanel {
     }
 
    
-
-
-
-    //4thimp
-    public String getClientName() {
-        return textContainer.getText();
-    }
-
-   
+   //4thimp new
     public void setMuted(boolean muted) {
         this.isMuted = muted;
-        updateStatusIndicator(); 
+        updateStatusIndicator();
+        if (isMuted) {
+            textContainer.setForeground(Color.GRAY);
+        } else {
+            textContainer.setForeground(Color.BLACK);
+        }
+        revalidate();
+        repaint();
     }
 
-   
+     //4thimp 
     public void setLastSender(boolean lastSender) {
         this.isLastSender = lastSender;
         updateStatusIndicator(); // Update the indicator
     }
 
+
+    //4thimp 
     private void updateStatusIndicator() {
         if (isMuted) {
-            statusIndicator.setBackground(Color.GRAY); // Muted users get a gray indicator
+            statusIndicator.setBackground(Color.GRAY); 
         } else if (isLastSender) {
-            statusIndicator.setBackground(Color.BLUE); // Last sender gets a blue indicator
+            statusIndicator.setBackground(Color.BLUE); 
+
         } else {
             statusIndicator.setBackground(new Color(0, 0, 0, 0)); // Default transparent
         }
         revalidate();
         repaint();
     }
+
+    
 }

@@ -19,12 +19,13 @@ import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 
+import Project.Client.Interfaces.IMessageEvents;
 import Project.Common.LoggerUtil;
 
 /**
  * UserListPanel represents a UI component that displays a list of users.
  */
-public class UserListPanel extends JPanel {
+public class UserListPanel extends JPanel implements IMessageEvents {
     private JPanel userListArea;
     private GridBagConstraints lastConstraints; // Keep track of the last constraints for the glue
     private HashMap<Long, UserListItem> userItemsMap; // Maintain a map of client IDs to UserListItems
@@ -178,7 +179,21 @@ public class UserListPanel extends JPanel {
         });
     }
 
-    //4thimp (for mute/unmuted)
+
+    //4thimp
+    public void setUserMutedStatus(long clientId, boolean isMuted) {
+        SwingUtilities.invokeLater(() -> {
+            UserListItem item = userItemsMap.get(clientId);
+            if (item != null) {
+                item.setMuted(isMuted);
+                userListArea.revalidate();
+                userListArea.repaint();
+            }
+        });
+    }
+
+
+    //4thimp (for mute/unmuted) (old version)
     public void onMessageReceive(long clientId, String message) {
         SwingUtilities.invokeLater(() -> {
             // Reset the last sender status for all users
@@ -193,5 +208,6 @@ public class UserListPanel extends JPanel {
             userListArea.repaint();
         });
     }
-  
+   
 }
+    

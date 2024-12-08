@@ -188,6 +188,18 @@ public class ServerThread extends BaseServerThread {
         }
     }
 
+   //4thimp new
+    public boolean sendMuteStatus(long targetClientId, boolean isMuted) {
+        Payload p = new Payload();
+        p.setPayloadType(isMuted ? PayloadType.MUTE : PayloadType.UNMUTE);
+        p.setTargetClientId(targetClientId);
+        return send(p);
+    }
+
+
+
+
+
     //Milestone4
     private void loadMuteList() {
         try {

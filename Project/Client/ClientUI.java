@@ -27,6 +27,7 @@ import Project.Client.Views.ConnectionPanel;
 import Project.Client.Views.Menu;
 import Project.Client.Views.RoomsPanel;
 import Project.Client.Views.UserDetailsPanel;
+import Project.Client.Views.UserListPanel;
 import Project.Common.LoggerUtil;
 
 
@@ -47,7 +48,7 @@ public class ClientUI extends JFrame implements IConnectionEvents, IMessageEvent
     private ChatPanel chatPanel;
     private RoomsPanel roomsPanel;
     private JLabel roomLabel = new JLabel();
-
+     
     
 
     /**
@@ -61,6 +62,8 @@ public class ClientUI extends JFrame implements IConnectionEvents, IMessageEvent
         container = getContentPane();
         cardContainer = new JPanel();
         cardContainer.setLayout(card);
+        
+      
         container.add(roomLabel, BorderLayout.NORTH);
         container.add(cardContainer, BorderLayout.CENTER);
 
@@ -194,14 +197,10 @@ public class ClientUI extends JFrame implements IConnectionEvents, IMessageEvent
         }
     }
 
-        /* 
-    public void onClientConnect(long clientId, String clientName, String message) {
-        if (currentCard.ordinal() >= CardView.CHAT.ordinal()){
-            chatPanel.addText(String.format(" *%s %s* ", clientName, message));
-        }}
-          */  
-        
     
+       
+
+
     @Override
     public void onMessageReceive(long clientId, String message) {
         if (currentCard.ordinal() >= CardView.CHAT.ordinal()) {
@@ -212,6 +211,7 @@ public class ClientUI extends JFrame implements IConnectionEvents, IMessageEvent
                 chatPanel.addText(String.format("%s[%s]: %s", clientName, clientId, message));
             
         }
+        chatPanel.notifyUserListMessageReceived(clientId, message); //callback 4thimp
     }
 }
     @Override
@@ -246,6 +246,12 @@ public class ClientUI extends JFrame implements IConnectionEvents, IMessageEvent
             }
         }
     }
+
+    //4thimp
+    public void onUserMuteStatusChange(long targetClientId, boolean isMuted) {
+        chatPanel.setUserMutedStatus(targetClientId, isMuted);
+    }
+
 
     @Override
     public void onRoomAction(long clientId, String clientName, String roomName, boolean isJoin) {
