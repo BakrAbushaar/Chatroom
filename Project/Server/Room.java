@@ -1,6 +1,10 @@
 package Project.Server;
 
 import java.util.concurrent.ConcurrentHashMap;
+
+import Project.Common.Payload;
+import Project.Common.PayloadType;
+
 import java.util.Random;
 
 public class Room implements AutoCloseable{
@@ -297,6 +301,8 @@ public class Room implements AutoCloseable{
                 info(String.format("%s muted %s", sender.getClientName(), target.getClientName()));
                 sender.sendMessage(String.format("You have muted %s", target.getClientName()));
                 target.sendMessage(String.format("%s has muted you.", sender.getClientName()));
+                sender.sendMuteStatus(targetClientId, true); //4thimp new
+
             } else {
                 sender.sendMessage(String.format("%s is already muted.", target.getClientName()));
             }
@@ -312,6 +318,8 @@ public class Room implements AutoCloseable{
                 info(String.format("%s unmuted %s", sender.getClientName(), target.getClientName()));
                 sender.sendMessage(String.format("You have unmuted %s", target.getClientName()));
                 target.sendMessage(String.format("%s has unmuted you.", sender.getClientName()));
+                sender.sendMuteStatus(targetClientId, false); //4thimp new
+
             } else {
                 sender.sendMessage(String.format("%s is not currently muted.", target.getClientName()));
             }
@@ -322,27 +330,26 @@ public class Room implements AutoCloseable{
 
 
 
+    //  Text Formatting
+    //  bna24
+    //  november 11, 2024
+    private String formatText(String message) {
+        String boldPattern = "\\*\\*(.*?)\\*\\*";
+        String italicPattern = "\\*(.*?)\\*";
+        String underlinePattern = "_(.*?)_";
+        String redPattern = "#r(.*?)r#";
+        String greenPattern = "#g(.*?)g#";
+        String bluePattern = "#b(.*?)b#";   
 
-//  Text Formatting
-//  bna24
-//  november 11, 2024
-private String formatText(String message) {
-    String boldPattern = "\\*\\*(.*?)\\*\\*";
-    String italicPattern = "\\*(.*?)\\*";
-    String underlinePattern = "_(.*?)_";
-    String redPattern = "#r(.*?)r#";
-    String greenPattern = "#g(.*?)g#";
-    String bluePattern = "#b(.*?)b#";   
-
-    //replaces with HTML
-    message = message.replaceAll(boldPattern, "<b>$1</b>");
-    message = message.replaceAll(italicPattern, "<i>$1</i>");
-    message = message.replaceAll(underlinePattern, "<u>$1</u>");
-    message = message.replaceAll(redPattern, "<span style=\"color:red;\">$1</span>");
-    message = message.replaceAll(greenPattern, "<span style=\"color:green;\">$1</span>");
-    message = message.replaceAll(bluePattern, "<span style=\"color:blue;\">$1</span>");
-    return message;
-}
+        //replaces with HTML
+        message = message.replaceAll(boldPattern, "<b>$1</b>");
+        message = message.replaceAll(italicPattern, "<i>$1</i>");
+        message = message.replaceAll(underlinePattern, "<u>$1</u>");
+        message = message.replaceAll(redPattern, "<span style=\"color:red;\">$1</span>");
+        message = message.replaceAll(greenPattern, "<span style=\"color:green;\">$1</span>");
+        message = message.replaceAll(bluePattern, "<span style=\"color:blue;\">$1</span>");
+        return message;
+    }
 
 
 

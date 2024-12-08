@@ -645,6 +645,12 @@ public enum Client {
                     FlipPayLoad flipPayload = (FlipPayLoad) payload;
                     processFlip(flipPayload.getClientId());
                     break;
+                case PayloadType.MUTE: //4thimp
+                    handleMuteStatusChange(payload.getTargetClientId(), true);
+                    break;
+                case PayloadType.UNMUTE: //4thimp
+                    handleMuteStatusChange(payload.getTargetClientId(), false);
+                    break;
                 default:
                     break;
             }
@@ -667,8 +673,14 @@ public enum Client {
     }
 
 
-    
-
+    //4thimp new
+    private void handleMuteStatusChange(long targetClientId, boolean isMuted) {
+        if (knownClients.containsKey(targetClientId)) {
+            if (events instanceof IConnectionEvents) {
+                ((IConnectionEvents) events).onUserMuteStatusChange(targetClientId, isMuted);
+            }
+        }
+    }
 
 
     // payload processors
@@ -695,20 +707,6 @@ public enum Client {
 }
 
 
-    private void processRoomsList(List<String> rooms, String message) {
-        // invoke onReceiveRoomList callback
-        ((IRoomEvents) events).onReceiveRoomList(rooms, message);
-        if (rooms == null || rooms.size() == 0) {
-            System.out.println(
-                    TextFX.colorize("No rooms found matching your query",
-                            Color.RED));
-            return;
-        }
-        System.out.println(TextFX.colorize("Room Results:", Color.PURPLE));
-        System.out.println(
-                String.join("\n", rooms));
-
-    }
 
 
 
