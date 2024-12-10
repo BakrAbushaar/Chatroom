@@ -17,6 +17,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -122,6 +124,7 @@ public class ChatPanel extends JPanel {
         });
 
         //Milestone4
+        //bna24, November 10 2024
         JButton exportButton = new JButton("Export Chat");
         exportButton.addActionListener(event -> exportChatHistory());
         input.add(exportButton);
@@ -208,29 +211,34 @@ public class ChatPanel extends JPanel {
     }
 
     //milestone4
-    private void exportChatHistory() {
-    try {
-        StringBuilder sb = new StringBuilder();
-        for (Component component : chatArea.getComponents()) {
-            if (component instanceof JEditorPane) {
-                JEditorPane textPane = (JEditorPane) component;
-                sb.append(textPane.getText()).append("\n");
+    // bna24, November 10
+        private void exportChatHistory() {
+        try {
+            StringBuilder sb = new StringBuilder();
+            for (Component component : chatArea.getComponents()) {
+                if (component instanceof JEditorPane) {
+                    JEditorPane textPane = (JEditorPane) component;
+                    sb.append(textPane.getText()).append("\n");
+                }
             }
+
+            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyyMMdd_HHmm");
+            String timestamp = dtf.format(LocalDateTime.now());
+            String fileName = "chat_history_" + timestamp + ".txt";
+
+            Path filePath = Paths.get(fileName);
+            Files.write(filePath, sb.toString().getBytes());
+            System.out.println("Chat history exported to: " + filePath.toAbsolutePath());
+        } catch (IOException e) {
+            System.err.println("Failed to export chat history: " + e.getMessage());
         }
-        String fileName = "chat_history_" + System.currentTimeMillis() + ".txt";
-        Path filePath = Paths.get(fileName);
-        Files.write(filePath, sb.toString().getBytes());
-        System.out.println("Chat history exported to: " + filePath.toAbsolutePath());
-    } catch (IOException e) {
-        System.err.println("Failed to export chat history: " + e.getMessage());
     }
-}
 
+        //4thimp callback
+        public void notifyUserListMessageReceived(long clientId, String message) {
+            userListPanel.onMessageReceive(clientId, message);
+        }
 
-    //4thimp callback
-    public void notifyUserListMessageReceived(long clientId, String message) {
-        userListPanel.onMessageReceive(clientId, message);
-    }
         //4thimp new
         public void setUserMutedStatus(long clientId, boolean isMuted) {
             userListPanel.setUserMutedStatus(clientId, isMuted);
